@@ -133,10 +133,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 srx4_to_2 = down_1(srx4)
                 srx2_to_1 = down_2(srx2)
 <<<<<<< HEAD
+                                
+=======
+<<<<<<< HEAD
                 
 =======
                                 
 >>>>>>> b76c98a3918208af5db150361889dd3791c727f8
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
                 # training
                 loss = criterion(hr, srx4)
                 loss += 0.1 * criterion(srx4_to_2, srx2)
@@ -154,10 +158,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 pfix['Loss'] = f'{loss.item():.4f}'
                 
 <<<<<<< HEAD
+                sr = quantize(srx4)      
+=======
+<<<<<<< HEAD
                 sr = quantize(sr)      
 =======
                 sr = quantize(srx4)      
 >>>>>>> b76c98a3918208af5db150361889dd3791c727f8
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
                 psnr, ssim, msssim = evaluate(hr, sr)
                         
                 psnrs.append(psnr)
@@ -187,10 +195,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                     z = torch.zeros_like(lr[0])
 <<<<<<< HEAD
+                    xz = torch.cat((lr[0], z, z, z), dim=-2)
+=======
+<<<<<<< HEAD
                     xz = torch.cat((lr[0], z), dim=-2)
 =======
                     xz = torch.cat((lr[0], z, z, z), dim=-2)
 >>>>>>> b76c98a3918208af5db150361889dd3791c727f8
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
                     imsave([xz, sr[0], hr[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
@@ -217,12 +229,17 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr = hr.to(device)
 
 <<<<<<< HEAD
+                            srx1, srx2, srx4 = model(lr)
+                            sr = quantize(srx4)
+=======
+<<<<<<< HEAD
                             sr, features = model(lr)
                             sr = quantize(sr)
 =======
                             srx1, srx2, srx4 = model(lr)
                             sr = quantize(srx4)
 >>>>>>> b76c98a3918208af5db150361889dd3791c727f8
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
 
                             psnr, ssim, msssim = evaluate(hr, sr)
 
@@ -245,10 +262,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             z = torch.zeros_like(lr[0])
 <<<<<<< HEAD
+                            xz = torch.cat((lr[0], z, z, z), dim=-2)
+=======
+<<<<<<< HEAD
                             xz = torch.cat((lr[0], z), dim=-2)
 =======
                             xz = torch.cat((lr[0], z, z, z), dim=-2)
 >>>>>>> b76c98a3918208af5db150361889dd3791c727f8
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
                             imsave([xz, sr[0], hr[0]], f'{result_dir}/{fname}_epoch_{epoch+1}.jpg')
                             
                         hist['epoch'].append(epoch+1)
