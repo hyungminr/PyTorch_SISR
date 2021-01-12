@@ -327,5 +327,5 @@ def psnr(sr, hr, scale=2, rgb_range=1, dataset=None):
 
     valid = diff[..., shave:-shave, shave:-shave]
     mse = valid.pow(2).mean()
-
+    if mse < 1e-7: mse += 1e-7
     return -10 * math.log10(mse)
