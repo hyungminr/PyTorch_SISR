@@ -48,10 +48,23 @@ class Down(nn.Module):
         super().__init__()
         layers = [nn.Conv2d(in_channels=3, out_channels=n_feats, kernel_size=3, padding=1, stride=2, bias=False)]
         layers += [nn.LeakyReLU(negative_slope=negval, inplace=True)]
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        layers += [nn.Conv2d(in_channels=n_feats, out_channels=3 kernel_size=3, padding=1, bias=False)]
+        self.down = nn.Sequential(*layers)
+    def forward(self, img):
+        imgx4 = self.down(img)
+=======
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
         layers += [nn.Conv2d(in_channels=n_feats, out_channels=3, kernel_size=3, padding=1, bias=False)]
         self.down = nn.Sequential(*layers)
     def forward(self, img):
         return self.down(img)
+<<<<<<< HEAD
+=======
+>>>>>>> b76c98a3918208af5db150361889dd3791c727f8
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
     
 class DRN(nn.Module):
     """  """

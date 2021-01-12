@@ -7,8 +7,11 @@
 *.0
 .ipynb_checkpoints
 */.ipynb_checkpoints/*.ipynb
+<<<<<<< HEAD
 data/benchmark
 data/DIV2K
+=======
+>>>>>>> e6994fa56381720ca2a9602b8f226e8edfaad487
 results
 weights
 logger
