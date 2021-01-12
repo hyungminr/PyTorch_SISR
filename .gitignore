@@ -1,0 +1,15 @@
+*.jpg
+*.png
+*.pth
+*.pyc
+*.pt
+*.csv
+*.0
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*.ipynb
+data/benchmark
+data/DIV2K
+results
+weights
+logger
+data
