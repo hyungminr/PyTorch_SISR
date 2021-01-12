@@ -1,0 +1,13 @@
+*.jpg
+*.png
+*.pth
+*.pyc
+*.pt
+*.csv
+*.0
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*.ipynb
+results
+weights
+logger
+data
