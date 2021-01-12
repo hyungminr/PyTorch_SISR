@@ -66,6 +66,7 @@ pfix_test = OrderedDict()
 alpha = 0.05
 
 alpha_i = 0
+not_best_since = 0
 
 epoch = 0
 num_epochs = 1000
@@ -134,8 +135,10 @@ while alpha < 0.95 or epoch < num_epochs:
                 loss_best = loss.item() / alpha
                 torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
                 torch.save(model.state_dict(), f'{weight_dir}/model_{alpha_i}.pth')
+            else:
+                not_best_since += 1
             
-            if loss.item() == 1:
+            if loss.item() == 1 or not_best_since > 500:
                 model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
                 
             if loss.item() < 0.1:
