@@ -73,7 +73,10 @@ num_epochs = 1000
 while alpha < 0.95 or epoch < num_epochs:
 
     if epoch == 0:
-        torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
+        if os.path.exists(f'{weight_dir}/model_best.pth'):
+            model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
+        else:
+            torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
         
     loss_best = 1.0 / alpha
     
@@ -106,6 +109,7 @@ while alpha < 0.95 or epoch < num_epochs:
             elapsed_time = time.time() - start_time
             elapsed = sec2time(elapsed_time)            
             pfix['Step'] = f'{step+1}'
+            pfix['Not Best Since'] = not_best_since
             pfix['Loss'] = f'{loss.item():.4f}'
 
             sr = quantize(sr)
@@ -133,6 +137,7 @@ while alpha < 0.95 or epoch < num_epochs:
             
             if loss_best > loss.item() / alpha:
                 loss_best = loss.item() / alpha
+                alpha_best = alpha
                 torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
                 torch.save(model.state_dict(), f'{weight_dir}/model_{alpha_i}.pth')
             else:

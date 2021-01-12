@@ -27,13 +27,10 @@ class dataset(torch.utils.data.Dataset):
         return len(self.files)
     
     def __getitem__(self, index):
-                
+        
         hflip = random.choice([True, False]) if self.augment else False
         vflip = random.choice([True, False]) if self.augment else False
         
-        h = self.height
-        w = self.width
-
         index = self.indexerror(index)
         
         output_name = self.files[index]
@@ -43,10 +40,9 @@ class dataset(torch.utils.data.Dataset):
         input_tensor = torch.load(input_name)
         output_tensor = torch.load(output_name)
         
-        if h > 0 and w > 0:
+        if self.height > 0 and self.width > 0:
             
             crop = self.get_crop_bbox(input_tensor)
-            
             input_tensor = self.crop_image(input_tensor, crop, mode='lr')
             output_tensor = self.crop_image(output_tensor, crop, mode='hr')
             
@@ -55,20 +51,21 @@ class dataset(torch.utils.data.Dataset):
             output_tensor= torch.tensor(output_tensor.numpy()[:,:,::-1].copy())
             
         if vflip:
-            input_tensor= torch.tensor(input_tensor.numpy()[:,:,::-2].copy())
-            output_tensor= torch.tensor(output_tensor.numpy()[:,:,::-2].copy())
+            input_tensor= torch.tensor(input_tensor.numpy()[:,::-1,:].copy())
+            output_tensor= torch.tensor(output_tensor.numpy()[:,::-1,:].copy())
+            
         return input_tensor, output_tensor, output_name
 
     def get_crop_bbox(self, tensor):
-        _, width, height = tensor.shape
+        _, tensor_width, tensor_height = tensor.shape
         w = self.width // self.scale_factor
         h = self.height // self.scale_factor
         if self.augment:
-            left = np.random.randint(width - w)
-            top = np.random.randint(height - h)
+            left = np.random.randint(tensor_width - w - 1)
+            top = np.random.randint(tensor_height - h - 1)
         else:
-            left = (width - w) // 2
-            top = (height - h) // 2
+            left = (tensor_width - w) // 2
+            top = (tensor_height - h) // 2
         return left, top
         
     def crop_image(self, tensor, crop_shape, mode):
@@ -81,17 +78,7 @@ class dataset(torch.utils.data.Dataset):
             crop_shape = [i * self.scale_factor for i in crop_shape]
             w = w * self.scale_factor
             h = h * self.scale_factor
-        tensor = tensor[:,crop_shape[0]:crop_shape[0]+w,crop_shape[1]:crop_shape[1]+h]
-        return tensor
-
-    
-    def load_tensor(self, file_name, transform=None):
-        image = Image.open(file_name)
-        if transform is None:
-            transform = get_transform()
-        if self.augment:
-            image = self.augment(image)
-        return transform(image)
+        return tensor[:,crop_shape[0]:crop_shape[0]+w,crop_shape[1]:crop_shape[1]+h]
     
     def indexerror(self, index):
         index = index if index < len(self.files) else 0
