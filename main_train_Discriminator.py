@@ -140,12 +140,10 @@ while alpha < 0.95 or epoch < num_epochs:
                 alpha_best = alpha
                 torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
                 torch.save(model.state_dict(), f'{weight_dir}/model_{alpha_i}.pth')
-                not_best_since = 0
             else:
                 not_best_since += 1
             
             if loss.item() == 1 or not_best_since > 500:
-                alpha = alpha_best
                 model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
                 
             if loss.item() < 0.1:
