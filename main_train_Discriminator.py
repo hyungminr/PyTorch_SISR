@@ -34,7 +34,7 @@ quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
 torch.manual_seed(0)
 
-train_loader = get_loader(mode='train', batch_size=16, scale_factor=4)
+train_loader = get_loader(mode='train', batch_size=16, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test')
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -67,6 +67,8 @@ alpha = 0.05
 
 alpha_i = 0
 not_best_since = 0
+torch_seed = 0
+torch.manual_seed(torch_seed)
 
 epoch = 0
 num_epochs = 1000
@@ -144,6 +146,8 @@ while alpha < 0.95 or epoch < num_epochs:
                 not_best_since += 1
             
             if loss.item() == 1 or not_best_since > 500:
+                torch_seed += 1
+                torch.manual_seed(torch_seed)
                 model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
                 
             if loss.item() < 0.1:
