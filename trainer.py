@@ -115,7 +115,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             msssims = []
             losses = []
             for lr, hr, _ in pbar:
-                
                 lr = lr.to(device)
                 hr = hr.to(device)
                 

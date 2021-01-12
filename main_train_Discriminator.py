@@ -66,13 +66,17 @@ pfix_test = OrderedDict()
 alpha = 0.05
 
 alpha_i = 0
+not_best_since = 0
 
 epoch = 0
 num_epochs = 1000
 while alpha < 0.95 or epoch < num_epochs:
 
     if epoch == 0:
-        torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
+        if os.path.exists(f'{weight_dir}/model_best.pth'):
+            model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
+        else:
+            torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
         
     loss_best = 1.0 / alpha
     
@@ -105,6 +109,7 @@ while alpha < 0.95 or epoch < num_epochs:
             elapsed_time = time.time() - start_time
             elapsed = sec2time(elapsed_time)            
             pfix['Step'] = f'{step+1}'
+            pfix['Not Best Since'] = not_best_since
             pfix['Loss'] = f'{loss.item():.4f}'
 
             sr = quantize(sr)
@@ -132,10 +137,15 @@ while alpha < 0.95 or epoch < num_epochs:
             
             if loss_best > loss.item() / alpha:
                 loss_best = loss.item() / alpha
+                alpha_best = alpha
                 torch.save(model.state_dict(), f'{weight_dir}/model_best.pth')
                 torch.save(model.state_dict(), f'{weight_dir}/model_{alpha_i}.pth')
+                not_best_since = 0
+            else:
+                not_best_since += 1
             
-            if loss.item() == 1:
+            if loss.item() == 1 or not_best_since > 500:
+                alpha = alpha_best
                 model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
                 
             if loss.item() < 0.1:
