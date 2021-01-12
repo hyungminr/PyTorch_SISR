@@ -227,7 +227,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             z = torch.zeros_like(lr[0])
                             xz = torch.cat((lr[0], z, z, z), dim=-2)
-                            imsave([xz, sr[0], hr[0]], f'{result_dir}/{fname}_epoch_{epoch+1}.jpg')
+                            imsave([xz, sr[0], hr[0]], f'{result_dir}/{fname}.jpg')
                             
                         hist['epoch'].append(epoch+1)
                         hist['psnr'].append(psnr_mean)
