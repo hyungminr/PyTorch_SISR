@@ -1,7 +1,4 @@
 import os
-import sys
-# sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
 import torch
 import datetime
 import time
@@ -56,18 +53,22 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     logger = SummaryWriter(log_dir=logger_dir, flush_secs=2)
     model = model.to(device)
 
+    #########################
+    with tqdm(model.named_parameters(), desc=f'Kernel Initialization', position=0, leave=True) as pbar_kernel_init:
+        for n, p in pbar_kernel_init:
+            if 'conv.0.weight' in n:
+                for i in range(64):
+                    for j in range(64):
+                        weight = p[i][j].clone()
+                        weight[1][1] += torch.rand(1, device=device)[0]
+                        p[i][j].data.copy_(weight)
+    #########################
+
+
     params = list(model.parameters())
     optim = torch.optim.Adam(params, lr=1e-4)
     scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=1000, gamma= 0.99)
     criterion = torch.nn.L1Loss()
-
-    ######
-    
-    pool = torch.nn.MaxPool2d(3).to(device)
-    pad1 = torch.nn.ZeroPad2d(1).to(device)
-    pad2 = torch.nn.ZeroPad2d(2).to(device)
-    
-    ######
 
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
@@ -132,35 +133,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # prediction
                 sr, features = model(lr)
                 
-                ####
-                sr_pool, hr_pool = [], []
-                
-                sr_pool.append(pool(sr))
-                hr_pool.append(pool(hr))
-                
-                sr_pool.append(-pool(-sr))
-                hr_pool.append(-pool(-hr))
-                
-                sr_pool.append(pool(pad1(sr)))
-                hr_pool.append(pool(pad1(hr)))
-                
-                sr_pool.append(-pool(pad1(-sr)))
-                hr_pool.append(-pool(pad1(-hr)))
-                
-                sr_pool.append(pool(pad2(sr)))
-                hr_pool.append(pool(pad2(hr)))
-                
-                sr_pool.append(-pool(pad2(-sr)))
-                hr_pool.append(-pool(pad2(-hr)))
-                
-                loss_pool = 0
-                for sr_, hr_ in zip(sr_pool, hr_pool):
-                    loss_pool += criterion(sr_, hr_)
-                #####
-                
                 # training
                 loss = criterion(hr, sr)
-                loss_tot = loss + loss_pool
+                loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -171,7 +146,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 elapsed = sec2time(elapsed_time)            
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['Loss Pool'] = f'{loss_pool.item():.4f}'
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)

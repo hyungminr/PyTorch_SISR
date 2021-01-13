@@ -6,6 +6,7 @@
 *.csv
 *.0
 *.sh
+*.ipynb
 .ipynb_checkpoints
 */.ipynb_checkpoints/*.ipynb
 <<<<<<< HEAD
