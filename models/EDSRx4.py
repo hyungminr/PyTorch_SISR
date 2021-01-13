@@ -39,7 +39,9 @@ class EDSR(nn.Module):
     """  """
     def __init__(self, args=None, num_RB=16, num_feats=64, scale=2, kernel=3, padding=1, bias=True):
         super().__init__()
-                
+        
+        scale = 2
+        
         self.sub_mean = MeanShift(mode='sub')
         layers = []
         layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
