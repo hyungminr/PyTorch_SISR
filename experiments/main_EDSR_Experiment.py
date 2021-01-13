@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from models.EDSR import EDSR
 from utils.data_loader import get_loader
@@ -30,7 +33,8 @@ test_loader = get_loader(mode='test')
 # import trainer_v4_fft as trainer
 # trainer.train(model, train_loader, test_loader, mode='EDSR_v4_fft')
 
-import trainer_v5_unshuffle as trainer
+import trainer as trainer
+# import trainer_v5_unshuffle as trainer
 from models.EDSR_unshuffle import EDSR
 model = EDSR()
 trainer.train(model, train_loader, test_loader, mode='EDSR_v5_unshuffle')

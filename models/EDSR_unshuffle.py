@@ -57,6 +57,7 @@ class EDSR(nn.Module):
         #        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats*4, kernel_size=kernel, padding=padding, bias=bias)]
         #        layers += [nn.PixelShuffle(2)]
         layers += [nn.Conv2d(in_channels=num_feats, out_channels=12, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.PixelShuffle(2)]
         self.tail = nn.Sequential(*layers)
         
         self.add_mean = MeanShift(mode='add')
