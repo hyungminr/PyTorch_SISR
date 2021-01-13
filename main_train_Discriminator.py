@@ -146,6 +146,7 @@ while alpha < 0.95 or epoch < num_epochs:
                 not_best_since += 1
             
             if loss.item() == 1 or not_best_since > 500:
+                not_best_since = 0
                 torch_seed += 1
                 torch.manual_seed(torch_seed)
                 model.load_state_dict(torch.load(f'{weight_dir}/model_best.pth'))
