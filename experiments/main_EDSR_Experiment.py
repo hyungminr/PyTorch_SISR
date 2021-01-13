@@ -27,5 +27,10 @@ test_loader = get_loader(mode='test')
 # trainer.train(model, train_loader, test_loader, mode='EDSR_v4_feature_mlp')
 
 
-import trainer_v4_fft as trainer
-trainer.train(model, train_loader, test_loader, mode='EDSR_v4_fft')
+# import trainer_v4_fft as trainer
+# trainer.train(model, train_loader, test_loader, mode='EDSR_v4_fft')
+
+import trainer_v5_unshuffle as trainer
+from models.EDSR_unshuffle import EDSR
+model = EDSR()
+trainer.train(model, train_loader, test_loader, mode='EDSR_v5_unshuffle')

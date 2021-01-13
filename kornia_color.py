@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import math
+from typing import Union, cast
 
 def rgb_to_grayscale(image: torch.Tensor) -> torch.Tensor:
     r"""Convert a RGB image to grayscale version of image.
@@ -400,3 +402,18 @@ def rgb_to_yuv(image: torch.Tensor) -> torch.Tensor:
     out: torch.Tensor = torch.stack([y, u, v], -3)
 
     return out
+
+def rgb_to_get_all(image):
+    g = rgb_to_grayscale(image)
+    hsv = rgb_to_hsv(image)
+    hls = rgb_to_hls(image)
+    luv = rgb_to_luv(image)
+    lab = rgb_to_lab(image)
+    rgba = rgb_to_rgba(image, 1.)
+    xyz = rgb_to_xyz(image)
+    ycbcr = rgb_to_ycbcr(image)
+    yuv = rgb_to_yuv(image)
+    
+    
+    
+    torch.Size([1, 3, 256, 256])
