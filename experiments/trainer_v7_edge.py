@@ -30,13 +30,13 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
         msssims.append(msssim)    
     return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
 
-class Edge(nn.Module):
+class Edge(torch.nn.Module):
     def __init__(self, num_fea=3, weight=None):
         super(Edge, self).__init__()
         layers = []
-        layers += [nn.ReflectionPad2d(1)]
-        layers += [nn.Conv2d(num_fea, num_fea, 3, stride=1, padding=0, bias=None, groups=num_fea)]
-        self.blur = nn.Sequential(*layers)
+        layers += [torch.nn.ReflectionPad2d(1)]
+        layers += [torch.nn.Conv2d(num_fea, num_fea, 3, stride=1, padding=0, bias=None, groups=num_fea)]
+        self.blur = torch.nn.Sequential(*layers)
         self.weight_init(weight)
             
     def forward(self, img):
