@@ -200,7 +200,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 if step % save_image_every == 0:
                 
                     z = torch.zeros_like(lr[0])
-                    xz = torch.cat((lr[0], z), dim=-2)
+                    _, _, llr, _ = lr.shape
+                    _, _, hlr, _ = hr.shape
+                    if hlr // 2 == llr:
+                        xz = torch.cat((lr[0], z), dim=-2)
+                    elif hlr // 4 == llr:
+                        xz = torch.cat((lr[0], z, z, z), dim=-2)
                     imsave([xz, sr[0], hr[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
@@ -249,7 +254,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             pbar_test.set_postfix(pfix_test)
                             
                             z = torch.zeros_like(lr[0])
-                            xz = torch.cat((lr[0], z), dim=-2)
+                            _, _, llr, _ = lr.shape
+                            _, _, hlr, _ = hr.shape
+                            if hlr // 2 == llr:
+                                xz = torch.cat((lr[0], z), dim=-2)
+                            elif hlr // 4 == llr:
+                                xz = torch.cat((lr[0], z, z, z), dim=-2)
                             imsave([xz, sr[0], hr[0]], f'{result_dir}/{fname}.jpg')
                             
                         hist['epoch'].append(epoch+1)
