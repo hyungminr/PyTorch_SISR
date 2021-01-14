@@ -158,7 +158,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # training
                 loss = criterion(hr, sr)
-                loss_tot = loss + 0.5*loss_edge
+                loss_tot = loss + 0.1*loss_edge
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
