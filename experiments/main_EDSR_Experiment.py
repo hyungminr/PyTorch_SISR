@@ -36,19 +36,24 @@ elif scale_factor == 2:
 # model = EDSR()
 # trainer.train(model, train_loader, test_loader, mode='EDSR_v4_feature_mlp')
 
-
-import trainer_v4_fft as trainer
-trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v4_fft')
-
 # import trainer as trainer
 # from models.EDSR_unshuffle import EDSR
 # model = EDSR()
 # trainer.train(model, train_loader, test_loader, mode='EDSR_v5_unshuffle')
 
 
+# import trainer_v4_fft as trainer
+# trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v4_fft')
+
+
 # import trainer_v6_from_shallow as trainer
 # from models.EDSR_train_from_shallow import EDSR
 # model = EDSR(scale=scale_factor)
 # trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v6_from_shallow')
+
+import trainer_v6_from_shallow_all as trainer
+from models.EDSR_train_from_shallow_all import EDSR
+model = EDSR(scale=scale_factor)
+trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v6_from_shallow_all')
 
 
