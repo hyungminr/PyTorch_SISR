@@ -3,6 +3,27 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class Edge(nn.Module):
+    def __init__(self, num_fea=3, weight=None):
+        super(Edge, self).__init__()
+        layers = []
+        layers += [nn.ReflectionPad2d(1)]
+        layers += [nn.Conv2d(num_fea, num_fea, 3, stride=1, padding=0, bias=None, groups=num_fea)]
+        self.blur = nn.Sequential(*layers)
+        self.weight_init(weight)
+            
+    def forward(self, img):
+        return self.blur(img)
+    
+    def weight_init(self, weight):
+        if weight is None:
+            kernel = torch.tensor([[[-1.000, -1.000, -1.000],
+                                    [-1.000, 8.0000, -1.000],
+                                    [-1.000, -1.000, -1.000]]])
+        for name, param in self.named_parameters():
+            param.data.copy_(kernel)
+            param.requires_grad = False
+
 def make_model(args, parent=False):
     return EDSR(args)
     
@@ -39,9 +60,7 @@ class EDSR(nn.Module):
     """  """
     def __init__(self, args=None, num_RB=16, num_feats=64, scale=2, kernel=3, padding=1, bias=True):
         super().__init__()
-        
-        scale = 2
-        
+                
         self.sub_mean = MeanShift(mode='sub')
         layers = []
         layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
@@ -60,6 +79,7 @@ class EDSR(nn.Module):
         self.tail = nn.Sequential(*layers)
         
         self.add_mean = MeanShift(mode='add')
+        self.edge = Edge()
         
     def forward(self, img):    
     
@@ -82,5 +102,6 @@ class EDSR(nn.Module):
         
         # meanshift (postprocess)
         out = self.add_mean(x_up)
+        edge = self.edge(out)
         
-        return out, x_deep
+        return out, edge, x_deep
