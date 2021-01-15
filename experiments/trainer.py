@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 import torch
 import datetime
 import time
@@ -14,6 +17,8 @@ from utils.eval import ssim as get_ssim
 from utils.eval import ms_ssim as get_msssim
 from utils.eval import psnr as get_psnr
 
+from models.common import GMSD_quality
+
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
     psnrs, ssims, msssims = [], [], []
@@ -26,6 +31,8 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
             msssim = 0
         msssims.append(msssim)    
     return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
+
+
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
@@ -77,7 +84,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             
         if epoch == 0:
             with torch.no_grad():
-                with tqdm(test_loader, desc=f'Warming Up || Test Epoch {epoch}/{num_epochs}', position=0, leave=True) as pbar_test:
+                with tqdm(test_loader, desc=f'Mode: {mode} || Warming Up || Test Epoch {epoch}/{num_epochs}', position=0, leave=True) as pbar_test:
                     psnrs = []
                     ssims = []
                     msssims = []
@@ -109,7 +116,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         if len(psnrs) > 1: break
                         
 
-        with tqdm(train_loader, desc=f'Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar:
+        with tqdm(train_loader, desc=f'Mode: {mode} || Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar:
             psnrs = []
             ssims = []
             msssims = []
@@ -121,9 +128,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # prediction
                 sr, features = model(lr)
                 
+                
                 # training
                 loss = criterion(hr, sr)
-                loss_tot = loss
+                loss_tot = loss + loss_gmsd
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -164,8 +172,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 if step % save_image_every == 0:
                 
                     z = torch.zeros_like(lr[0])
-                    xz = torch.cat((lr[0], z), dim=-2)
-                    imsave([xz, sr[0], hr[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
+                    _, _, llr, _ = lr.shape
+                    _, _, hlr, _ = hr.shape
+                    if hlr // 2 == llr:
+                        xz = torch.cat((lr[0], z), dim=-2)
+                    elif hlr // 4 == llr:
+                        xz = torch.cat((lr[0], z, z, z), dim=-2)
+                    imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
                 
@@ -179,7 +192,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             if (epoch+1) % test_model_every == 0:
                 
                 with torch.no_grad():
-                    with tqdm(test_loader, desc=f'Test Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar_test:
+                    with tqdm(test_loader, desc=f'Mode: {mode} || Test Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar_test:
                         psnrs = []
                         ssims = []
                         msssims = []
@@ -191,6 +204,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr = hr.to(device)
 
                             sr, features = model(lr)
+                            
+                            gmsd = GMSD(hr, sr)  
+                            
                             sr = quantize(sr)
 
                             psnr, ssim, msssim = evaluate(hr, sr)
@@ -213,8 +229,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             pbar_test.set_postfix(pfix_test)
                             
                             z = torch.zeros_like(lr[0])
-                            xz = torch.cat((lr[0], z), dim=-2)
-                            imsave([xz, sr[0], hr[0]], f'{result_dir}/{fname}.jpg')
+                            _, _, llr, _ = lr.shape
+                            _, _, hlr, _ = hr.shape
+                            if hlr // 2 == llr:
+                                xz = torch.cat((lr[0], z), dim=-2)
+                            elif hlr // 4 == llr:
+                                xz = torch.cat((lr[0], z, z, z), dim=-2)
+                            imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
                             
                         hist['epoch'].append(epoch+1)
                         hist['psnr'].append(psnr_mean)
