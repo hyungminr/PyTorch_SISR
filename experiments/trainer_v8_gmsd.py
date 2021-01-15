@@ -189,7 +189,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         xz = torch.cat((lr[0], z), dim=-2)
                     elif hlr // 4 == llr:
                         xz = torch.cat((lr[0], z, z, z), dim=-2)
-                    imsave([xz, sr[0], hr[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
+                    imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
                 
