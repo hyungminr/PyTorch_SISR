@@ -19,6 +19,7 @@ from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
 from models.common import MSHF
+from models.common import ReceptiveFieldBlock
 
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
@@ -60,8 +61,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     os.makedirs(logger_dir, exist_ok=True)
     logger = SummaryWriter(log_dir=logger_dir, flush_secs=2)
     model = model.to(device)
+    RFB = ReceptiveFieldBlock(3, 3).to(device)
 
-    params = list(model.parameters())
+    params = list(model.parameters()) + list(RFB.parameters())
     optim = torch.optim.Adam(params, lr=1e-4)
     scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=1000, gamma= 0.99)
     criterion = torch.nn.L1Loss()
@@ -85,7 +87,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     for key in ['epoch', 'psnr', 'ssim', 'ms-ssim']:
         hist[key] = []
 
-    pretrained_epoch = 50
+    pretrained_epoch = 150
 
     for epoch in range(num_epochs):
 
@@ -110,6 +112,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         hr = hr.to(device)
                         
                         sr, features = model(lr)
+                        sr = RFB(sr)
                         sr = quantize(sr)
                         
                         psnr, ssim, msssim = evaluate(hr, sr)
@@ -144,20 +147,18 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # prediction
                 sr, features = model(lr)
+                sr = RFB(sr)
                 
                 mshf_hr = mshf(hr)
                 mshf_sr = mshf(sr)
                 
-                ####
                 gmsd = GMSD(hr, sr)
                 
-                loss_mshf = criterion(mshf_hr, mshf_sr)
-                #####
                 
                 # training
                 loss = criterion(hr, sr)
                     
-                loss_tot = loss + 0.1 * loss_mshf
+                loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -168,7 +169,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 elapsed = sec2time(elapsed_time)            
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['Loss MSHF'] = f'{loss_mshf.item():.4f}'
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)
@@ -237,6 +237,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr = hr.to(device)
 
                             sr, features = model(lr)
+                            sr = RFB(sr)
                             
                             mshf_hr = mshf(hr)
                             mshf_sr = mshf(sr)
