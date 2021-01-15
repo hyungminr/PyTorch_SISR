@@ -155,13 +155,13 @@ class ReceptiveFieldBlock(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias.data, 0.0)
 
-    def forward(self, input: Tensor) -> Tensor:
-        shortcut = self.shortcut(input)
+    def forward(self, x):
+        shortcut = self.shortcut(x)
 
-        branch1 = self.branch1(input)
-        branch2 = self.branch2(input)
-        branch3 = self.branch3(input)
-        branch4 = self.branch4(input)
+        branch1 = self.branch1(x)
+        branch2 = self.branch2(x)
+        branch3 = self.branch3(x)
+        branch4 = self.branch4(x)
 
         out = torch.cat((branch1, branch2, branch3, branch4), 1)
         out = self.conv1x1(out)
