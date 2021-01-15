@@ -69,11 +69,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     ######
     
-    
     mshf = MSHF(3, 3).to(device)
     
     ######
-
+    torch.autograd.set_detect_anomaly(True)
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -88,8 +87,15 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     for epoch in range(num_epochs):
 
+        if epoch < 500:
+            continue
+        if epoch == 500:
+            model.load_state_dict(torch.load('./weights/2021.01.12/EDSR_Baseline/epoch_0500.pth'))
+
         if epoch == 0:
             torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
+            
+        
             
         if epoch == 0:
             with torch.no_grad():
@@ -141,13 +147,15 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 mshf_sr = mshf(sr)
                 
                 ####
-                gmsd = GMSD(hr, sr)             
+                gmsd = GMSD(hr, sr)
+                
                 loss_mshf = criterion(mshf_hr, mshf_sr)
                 #####
                 
                 # training
                 loss = criterion(hr, sr)
-                loss_tot = loss + loss_mshf
+                    
+                loss_tot = loss + 0.1 * loss_mshf
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -197,8 +205,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         xz = torch.cat((lr[0], z, z, z), dim=-2)
                     imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
-                    mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(9)], dim=-1),
-                                          torch.cat([mshf_hr[:,i,:,:] for i in range(9)], dim=-1)), dim=-2)
+                    
+                    mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
+                                          torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
                     
                     imsave(mshf_vis, f'{result_dir}/MSHF_epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
@@ -262,8 +271,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                                 xz = torch.cat((lr[0], z, z, z), dim=-2)
                             imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
                             
-                            mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(9)], dim=-1),
-                                                  torch.cat([mshf_hr[:,i,:,:] for i in range(9)], dim=-1)), dim=-2)
+                            mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
+                                                  torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
                             
                             imsave(mshf_vis, f'{result_dir}/MSHF_{fname}.jpg')
                             
