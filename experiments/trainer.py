@@ -132,6 +132,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # training
                 loss = criterion(hr, sr)
                 optim.zero_grad()
+                loss_tot = loss
                 loss_tot.backward()
                 optim.step()
                 scheduler.step()
