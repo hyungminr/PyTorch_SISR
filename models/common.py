@@ -171,3 +171,74 @@ class ReceptiveFieldBlock(nn.Module):
             out = self.lrelu(out)
 
         return out
+        
+        
+class SecondOrder(torch.nn.Module):
+    def __init__(self, in_channels=64, out_channels=64, ksize=3, mode='h'):
+        super(SecondOrder, self).__init__()
+        layers = [torch.nn.ReflectionPad2d(ksize//2),
+                  torch.nn.Conv2d(in_channels, out_channels, ksize, stride=1, padding=0, bias=None, groups=out_channels)]
+        self.conv = torch.nn.Sequential(*layers)
+        self.weight_init(ksize, mode)
+            
+    def forward(self, img):
+        return self.conv(img)
+    
+    def weight_init(self, ksize, mode):
+        kernel = torch.zeros((1, ksize, ksize))
+        if mode=='h':
+            kernel[0][ksize//2][0] = 1
+            kernel[0][ksize//2][ksize//2] = -2
+            kernel[0][ksize//2][-1] = 1
+        elif mode=='v':
+            kernel[0][0][ksize//2] = 1
+            kernel[0][ksize//2][ksize//2] = -2
+            kernel[0][-1][ksize//2] = 1
+        else:
+            kernel[0][0][0] = 1
+            kernel[0][0][-1] = -1
+            kernel[0][-1][0] = -1
+            kernel[0][-1][-1] = 1
+        for name, param in self.named_parameters():
+            param.data.copy_(kernel)
+            param.requires_grad = False
+            
+class MSHF(torch.nn.Module):
+    def __init__(self, in_channels=64, out_channels=64):
+        super(MSHF, self).__init__()
+        
+        scale_3 = [SecondOrder(in_channels=in_channels, out_channels=out_channels, ksize=3, mode=mode) for mode in ['h', 'v', 'hv']]
+        scale_5 = [SecondOrder(in_channels=in_channels, out_channels=out_channels, ksize=5, mode=mode) for mode in ['h', 'v', 'hv']]
+        scale_7 = [SecondOrder(in_channels=in_channels, out_channels=out_channels, ksize=7, mode=mode) for mode in ['h', 'v', 'hv']]
+        
+        self.scale_3 = nn.ModuleList(scale_3)
+        self.scale_5 = nn.ModuleList(scale_5)
+        self.scale_7 = nn.ModuleList(scale_7)
+        
+    def forward(self, x):
+    
+        hh = self.scale_3[0](x)
+        vv = self.scale_3[1](x)
+        hv = self.scale_3[2](x)        
+        fea = torch.square(hh - hv) + 4 * torch.square(hv)
+        fea = 0.5 * torch.sqrt(fea)        
+        fea_3 = hh + vv + fea
+        
+        hh = self.scale_5[0](x)
+        vv = self.scale_5[1](x)
+        hv = self.scale_5[2](x)        
+        fea = torch.square(hh - hv) + 4 * torch.square(hv)
+        fea = 0.5 * torch.sqrt(fea)        
+        fea_5 = hh + vv + fea
+        
+        hh = self.scale_7[0](x)
+        vv = self.scale_7[1](x)
+        hv = self.scale_7[2](x)        
+        fea = torch.square(hh - hv) + 4 * torch.square(hv)
+        fea = 0.5 * torch.sqrt(fea)        
+        fea_7 = hh + vv + fea
+        
+        fea = torch.cat((fea_3, fea_5, fea_7), dim=1)
+        return fea
+        
+        
