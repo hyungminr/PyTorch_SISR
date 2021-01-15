@@ -223,6 +223,7 @@ class MSHF(torch.nn.Module):
         self.scale_7 = nn.ModuleList(scale_7)
         self.rgb_scale = rgb_scale
         self.act = ReLU1()
+        self.eps = 1e-7
         
     def forward(self, x):
         x = x * (255 / self.rgb_scale)
@@ -231,7 +232,7 @@ class MSHF(torch.nn.Module):
         vv = self.scale_3[1](x)
         hv = self.scale_3[2](x)        
         fea = torch.square(hh - vv) + 4 * torch.square(hv)
-        fea = torch.sqrt(fea)        
+        fea = torch.sqrt(fea + self.eps)        
         fea_3 = (hh + vv + fea) * 0.5
         fea_3 = torch.mean(fea_3, dim=1, keepdim=True)
         
@@ -239,7 +240,7 @@ class MSHF(torch.nn.Module):
         vv = self.scale_5[1](x)
         hv = self.scale_5[2](x)        
         fea = torch.square(hh - vv) + 4 * torch.square(hv)
-        fea = torch.sqrt(fea)        
+        fea = torch.sqrt(fea + self.eps)        
         fea_5 = (hh + vv + fea) * 0.5
         fea_5 = torch.mean(fea_5, dim=1, keepdim=True)
         
@@ -247,7 +248,7 @@ class MSHF(torch.nn.Module):
         vv = self.scale_7[1](x)
         hv = self.scale_7[2](x)        
         fea = torch.square(hh - vv) + 4 * torch.square(hv)
-        fea = torch.sqrt(fea)        
+        fea = torch.sqrt(fea + self.eps)        
         fea_7 = (hh + vv + fea) * 0.5
         fea_7 = torch.mean(fea_7, dim=1, keepdim=True)
         
