@@ -56,9 +56,12 @@ elif scale_factor == 2:
 # model = EDSR(scale=scale_factor)
 # trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v6_from_shallow_all')
 
-import trainer_v7_edge as trainer
-from models.EDSR_output_edge import EDSR
-model = EDSR(scale=scale_factor)
-trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v7_edge')
+# import trainer_v7_edge as trainer
+# from models.EDSR_output_edge import EDSR
+# model = EDSR(scale=scale_factor)
+# trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v7_edge')
+
+import trainer_v8_gmsd as trainer
+trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v8_gmsd')
 
 

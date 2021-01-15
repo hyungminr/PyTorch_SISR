@@ -30,9 +30,13 @@ def imshow(tensor, resize=None, visualize=True):
         pad = torch.nn.ConstantPad2d(2, 0)
         for i, t in enumerate(tensor):
             tensor[i] = pad(t)
+            if len(tensor[i].shape) == 4:
+                tensor[i] = tensor[i][0]
         tensor = torch.cat(tensor, dim=-1) # horizontal concat
     t2img = T.ToPILImage()
     # img = t2img(torch.clamp(tensor[0].cpu().detach(), 0, 1))
+    if len(tensor.shape) == 4:
+        tensor = tensor[0]
     img = t2img(torch.clamp(tensor, 0, 1))
     if resize is not None:
         img = img.resize(resize)
