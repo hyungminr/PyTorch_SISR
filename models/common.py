@@ -88,7 +88,7 @@ class GMSD_quality(nn.Module):
         self.T = 170.
         self.rgb_scale = rgb_scale
     def forward(self, img1, img2):
-        if rgb_scale == 1:
+        if self.rgb_scale == 1:
             img1 = img1 * 255.
             img2 = img2 * 255.
         gm1 = self.GMSD(img1)
