@@ -18,6 +18,7 @@ from utils.eval import ms_ssim as get_msssim
 from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
+from models.common import MSHF
 
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
@@ -64,9 +65,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     optim = torch.optim.Adam(params, lr=1e-4)
     scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=1000, gamma= 0.99)
     criterion = torch.nn.L1Loss()
-
     GMSD = GMSD_quality().to(device)
-    
+    mshf = MSHF(3, 3).to(device)
+
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -86,7 +87,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             
         if epoch == 0:
             with torch.no_grad():
-                with tqdm(test_loader, desc=f'Mode: {mode} || Warming Up || Test Epoch {epoch}/{num_epochs}', position=0, leave=True) as pbar_test:
+                with tqdm(test_loader, desc=f'{mode} || Warming Up || Test Epoch {epoch}/{num_epochs}', position=0, leave=True) as pbar_test:
                     psnrs = []
                     ssims = []
                     msssims = []
@@ -118,7 +119,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         if len(psnrs) > 1: break
                         
 
-        with tqdm(train_loader, desc=f'Mode: {mode} || Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar:
+        with tqdm(train_loader, desc=f'{mode} || Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar:
             psnrs = []
             ssims = []
             msssims = []
@@ -129,12 +130,16 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # prediction
                 sr, features = model(lr)
-                gmsd = GMSD(hr, sr)                
+                
+                mshf_hr = mshf(hr)
+                mshf_sr = mshf(sr)
+                
+                gmsd = GMSD(hr, sr)      
                 
                 # training
                 loss = criterion(hr, sr)
-                optim.zero_grad()
                 loss_tot = loss
+                optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
                 scheduler.step()
@@ -182,6 +187,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         xz = torch.cat((lr[0], z, z, z), dim=-2)
                     imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
+                    mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
+                                          torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
+                    
+                    imsave(mshf_vis, f'{result_dir}/MSHF_epoch_{epoch+1}_iter_{step:05d}.jpg')
+                    
                 step += 1
                 
             logger.add_scalar("Loss/train", np.array(losses).mean(), epoch+1)
@@ -194,7 +204,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             if (epoch+1) % test_model_every == 0:
                 
                 with torch.no_grad():
-                    with tqdm(test_loader, desc=f'Mode: {mode} || Test Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar_test:
+                    with tqdm(test_loader, desc=f'{mode} || Test Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar_test:
                         psnrs = []
                         ssims = []
                         msssims = []
@@ -206,6 +216,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr = hr.to(device)
 
                             sr, features = model(lr)
+                            
+                            mshf_hr = mshf(hr)
+                            mshf_sr = mshf(sr)
                             
                             gmsd = GMSD(hr, sr)  
                             
@@ -238,6 +251,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             elif hlr // 4 == llr:
                                 xz = torch.cat((lr[0], z, z, z), dim=-2)
                             imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
+                            
+                            mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
+                                                  torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
+                            
+                            imsave(mshf_vis, f'{result_dir}/MSHF_{fname}.jpg')
                             
                         hist['epoch'].append(epoch+1)
                         hist['psnr'].append(psnr_mean)
