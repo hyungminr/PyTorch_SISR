@@ -134,11 +134,11 @@ class ReceptiveFieldBlock(nn.Module):
         )
 
         self.branch4 = nn.Sequential(
-            nn.Conv2d(in_channels, channels // 2, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.Conv2d(in_channels, channels, kernel_size=1, stride=1, padding=0, bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d(channels // 2, (channels // 4) * 3, kernel_size=(1, 3), stride=1, padding=(0, 1), bias=False),
+            nn.Conv2d(channels, channels * 3, kernel_size=(1, 3), stride=1, padding=(0, 1), bias=False),
             nn.ReLU(inplace=True),
-            nn.Conv2d((channels // 4) * 3, channels, kernel_size=(1, 3), stride=1, padding=(0, 1), bias=False),
+            nn.Conv2d(channels * 3, channels, kernel_size=(1, 3), stride=1, padding=(0, 1), bias=False),
             nn.ReLU(inplace=True),
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=5, dilation=5, bias=False)
         )
