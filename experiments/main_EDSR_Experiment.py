@@ -67,4 +67,4 @@ elif scale_factor == 2:
 import trainer
 from models.EDSR_RFB import EDSR
 model = EDSR(scale=scale_factor)
-trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v9_EFB')
+trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v9_RFB')

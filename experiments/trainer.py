@@ -65,6 +65,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=1000, gamma= 0.99)
     criterion = torch.nn.L1Loss()
 
+    GMSD = GMSD_quality().to(device)
+    
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -127,7 +129,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # prediction
                 sr, features = model(lr)
-                
+                gmsd = GMSD(hr, sr)                
                 
                 # training
                 loss = criterion(hr, sr)
