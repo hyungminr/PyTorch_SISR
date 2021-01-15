@@ -46,7 +46,7 @@ class EDSR(nn.Module):
         layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
-        blocks = [ReceptiveFieldBlock() for _ in range(16)]
+        blocks = [ReceptiveFieldBlock(64, 64) for _ in range(16)]
         blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.body = nn.ModuleList(blocks)
         
