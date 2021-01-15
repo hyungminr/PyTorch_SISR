@@ -3,6 +3,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+class ReLU1(torch.nn.modules.activation.Hardtanh):
+    def __init__(self, inplace: bool = False):
+        super(ReLU1, self).__init__(0., 1., inplace)
+    def extra_repr(self) -> str:
+        inplace_str = 'inplace=True' if self.inplace else ''
+        return inplace_str
+
 class Blur(nn.Module):
     def __init__(self, weight=None):
         super(Blur, self).__init__()
@@ -204,7 +211,7 @@ class SecondOrder(torch.nn.Module):
             param.requires_grad = False
             
 class MSHF(torch.nn.Module):
-    def __init__(self, in_channels=64, out_channels=64):
+    def __init__(self, in_channels=64, out_channels=64, rgb_scale=1):
         super(MSHF, self).__init__()
         
         scale_3 = [SecondOrder(in_channels=in_channels, out_channels=out_channels, ksize=3, mode=mode) for mode in ['h', 'v', 'hv']]
@@ -214,31 +221,39 @@ class MSHF(torch.nn.Module):
         self.scale_3 = nn.ModuleList(scale_3)
         self.scale_5 = nn.ModuleList(scale_5)
         self.scale_7 = nn.ModuleList(scale_7)
+        self.rgb_scale = rgb_scale
+        self.act = ReLU1()
         
     def forward(self, x):
+        x = x * (255 / self.rgb_scale)
     
         hh = self.scale_3[0](x)
         vv = self.scale_3[1](x)
         hv = self.scale_3[2](x)        
-        fea = torch.square(hh - hv) + 4 * torch.square(hv)
-        fea = 0.5 * torch.sqrt(fea)        
-        fea_3 = hh + vv + fea
+        fea = torch.square(hh - vv) + 4 * torch.square(hv)
+        fea = torch.sqrt(fea)        
+        fea_3 = (hh + vv + fea) * 0.5
+        fea_3 = torch.mean(fea_3, dim=1, keepdim=True)
         
         hh = self.scale_5[0](x)
         vv = self.scale_5[1](x)
         hv = self.scale_5[2](x)        
-        fea = torch.square(hh - hv) + 4 * torch.square(hv)
-        fea = 0.5 * torch.sqrt(fea)        
-        fea_5 = hh + vv + fea
+        fea = torch.square(hh - vv) + 4 * torch.square(hv)
+        fea = torch.sqrt(fea)        
+        fea_5 = (hh + vv + fea) * 0.5
+        fea_5 = torch.mean(fea_5, dim=1, keepdim=True)
         
         hh = self.scale_7[0](x)
         vv = self.scale_7[1](x)
         hv = self.scale_7[2](x)        
-        fea = torch.square(hh - hv) + 4 * torch.square(hv)
-        fea = 0.5 * torch.sqrt(fea)        
-        fea_7 = hh + vv + fea
+        fea = torch.square(hh - vv) + 4 * torch.square(hv)
+        fea = torch.sqrt(fea)        
+        fea_7 = (hh + vv + fea) * 0.5
+        fea_7 = torch.mean(fea_7, dim=1, keepdim=True)
         
         fea = torch.cat((fea_3, fea_5, fea_7), dim=1)
-        return fea
+        
+        fea = fea * (self.rgb_scale / 255)
+        return self.act(fea)
         
         
