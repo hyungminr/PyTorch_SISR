@@ -106,7 +106,8 @@ class ReceptiveFieldBlock(nn.Module):
     """ from RFB-ESRGAN """
     def __init__(self, in_channels, out_channels, scale_ratio=0.2, non_linearity=True):
         super(ReceptiveFieldBlock, self).__init__()
-        channels = in_channels // 4
+        # channels = in_channels // 4
+        channels = in_channels
         # shortcut layer
         self.shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
 
@@ -142,7 +143,7 @@ class ReceptiveFieldBlock(nn.Module):
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=5, dilation=5, bias=False)
         )
 
-        self.conv1x1 = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
+        self.conv1x1 = nn.Conv2d(in_channels * 4, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
         self.lrelu = nn.LeakyReLU(negative_slope=0.2, inplace=True) if non_linearity else None
 
         self.scale_ratio = scale_ratio
