@@ -82,14 +82,15 @@ class GMSD(nn.Module):
         return torch.sqrt(torch.square(px) + torch.square(py)) * (rgb_scale/255)
     
 class GMSD_quality(nn.Module):
-    def __init__(self):
+    def __init__(self, rgb_scale=1):
         super(GMSD_quality, self).__init__()
         self.GMSD = GMSD()
-        self.T = 170
+        self.T = 170.
+        self.rgb_scale = rgb_scale
     def forward(self, img1, img2):
-        if img1.max() <= 1 and img2.max() <= 1:
-            img1 = img1 * 255
-            img2 = img2 * 255
+        if rgb_scale == 1:
+            img1 = img1 * 255.
+            img2 = img2 * 255.
         gm1 = self.GMSD(img1)
         gm2 = self.GMSD(img2)
-        return 1 - (2 * gm1 * gm2 + self.T) / (torch.square(gm1) + torch.square(gm2) + self.T)
+        return 1. - (2. * gm1 * gm2 + self.T) / (torch.square(gm1) + torch.square(gm2) + self.T)
