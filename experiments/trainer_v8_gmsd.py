@@ -141,7 +141,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # training
                 loss = criterion(hr, sr)
-                loss_tot = loss + 0.1*loss_gmsd
+                loss_tot = loss + loss_gmsd
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -215,6 +215,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr = hr.to(device)
 
                             sr, features = model(lr)
+                            
+                            gmsd = GMSD(hr, sr)  
+                            
                             sr = quantize(sr)
 
                             psnr, ssim, msssim = evaluate(hr, sr)
@@ -243,7 +246,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                                 xz = torch.cat((lr[0], z), dim=-2)
                             elif hlr // 4 == llr:
                                 xz = torch.cat((lr[0], z, z, z), dim=-2)
-                            imsave([xz, sr[0], hr[0]], f'{result_dir}/{fname}.jpg')
+                            imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
                             
                         hist['epoch'].append(epoch+1)
                         hist['psnr'].append(psnr_mean)
