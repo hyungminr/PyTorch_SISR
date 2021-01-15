@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 4
+scale_factor = 2
 
 model = EDSR(scale=scale_factor)
 
@@ -67,4 +67,4 @@ elif scale_factor == 2:
 import trainer
 from models.EDSR_RFB import EDSR
 model = EDSR(scale=scale_factor)
-trainer.train(model, train_loader, test_loader, mode='EDSR_x4_v9_RFB')
+trainer.train(model, train_loader, test_loader, mode='EDSR_x2_v9_RFB')
