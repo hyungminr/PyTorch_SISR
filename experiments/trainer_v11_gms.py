@@ -18,7 +18,7 @@ from utils.eval import ms_ssim as get_msssim
 from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
-from models.common import GMSD
+from models.common import GMSD as GMS
 
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
@@ -68,7 +68,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     ######
     
-    GMSD_map = GMSD().to(device)
+    GMSD_map = GMS().to(device)
     GMSD = GMSD_quality().to(device)
     
     ######
