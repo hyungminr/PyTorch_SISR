@@ -53,10 +53,10 @@ class Edge(torch.nn.Module):
             param.requires_grad = False
             
 class Prewitt(nn.Module):
-    def __init__(self, mode='x'):
+    def __init__(self, mode='x', pad=1):
         super(Prewitt, self).__init__()
         num_fea = 3
-        layers = [nn.ReflectionPad2d(1),
+        layers = [nn.ReflectionPad2d(pad),
                   nn.Conv2d(num_fea, num_fea, 3, stride=1, padding=0, bias=None, groups=num_fea)]
         self.blur = nn.Sequential(*layers)
         self.weight_init(mode)
@@ -77,16 +77,18 @@ class Prewitt(nn.Module):
             param.data.copy_(kernel)
             param.requires_grad = False
             
+            
 class GMSD(nn.Module):
-    def __init__(self):
+    def __init__(self, rgb_scale=1):
         super(GMSD, self).__init__()
-        self.prewitt_x = Prewitt('x')
-        self.prewitt_y = Prewitt('y')
+        self.rgb_scale = rgb_scale
+        self.prewitt_x = Prewitt('x', pad=0)
+        self.prewitt_y = Prewitt('y', pad=0)
     def forward(self, img):
-        rgb_scale = 255 if img.max() > 2 else 1
-        px = self.prewitt_x(img * (255/rgb_scale))
-        py = self.prewitt_y(img * (255/rgb_scale))
-        return torch.sqrt(torch.square(px) + torch.square(py)) * (rgb_scale/255)
+        px = self.prewitt_x(img * (255/self.rgb_scale))
+        py = self.prewitt_y(img * (255/self.rgb_scale))
+        return torch.sqrt(torch.square(px) + torch.square(py)) * (rself.gb_scale/255)
+            
     
 class GMSD_quality(nn.Module):
     def __init__(self, rgb_scale=1):
@@ -95,13 +97,13 @@ class GMSD_quality(nn.Module):
         self.T = 170.
         self.rgb_scale = rgb_scale
     def forward(self, img1, img2):
-        if self.rgb_scale == 1:
-            img1 = img1 * 255.
-            img2 = img2 * 255.
+        img1 = img1 * (255/self.rgb_scale)
+        img2 = img2 * (255/self.rgb_scale)
         gm1 = self.GMSD(img1)
         gm2 = self.GMSD(img2)
         return 1. - (2. * gm1 * gm2 + self.T) / (torch.square(gm1) + torch.square(gm2) + self.T)
-                
+        
+        
 class ReceptiveFieldBlock(nn.Module):
     """ from RFB-ESRGAN """
     def __init__(self, in_channels, out_channels, scale_ratio=0.2, non_linearity=True):

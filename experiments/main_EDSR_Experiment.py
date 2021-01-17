@@ -83,3 +83,7 @@ elif scale_factor == 2:
 # from models.EDSR_opening import EDSR
 # model = EDSR(scale=scale_factor)
 # trainer.train(model, train_loader, test_loader, mode='EDSR_x2_v11_Opening')
+
+
+import trainer_v11_gms as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v11_gms')
