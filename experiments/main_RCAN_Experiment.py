@@ -27,8 +27,8 @@ elif scale_factor == 2:
 # model = RCAN()
 # trainer.train(model, train_loader, test_loader, mode='RCAN_v6_from_shallow')
 
-# import trainer_v8_gmsd as trainer
-# trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v8_gmsd')
+import trainer_v8_gmsd as trainer
+trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v8_gmsd_pretrained')
 
-import trainer_v10_mshf as trainer
-trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v10_MSHF')
+# import trainer_v10_mshf as trainer
+# trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v10_MSHF')
