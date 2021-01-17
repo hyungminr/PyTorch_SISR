@@ -85,7 +85,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     for key in ['epoch', 'psnr', 'ssim', 'ms-ssim']:
         hist[key] = []
 
-    pretrained_epoch = 40
+    pretrained_epoch = 50
 
     for epoch in range(num_epochs):
 
