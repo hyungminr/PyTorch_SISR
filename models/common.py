@@ -87,7 +87,7 @@ class GMSD(nn.Module):
     def forward(self, img):
         px = self.prewitt_x(img * (255/self.rgb_scale))
         py = self.prewitt_y(img * (255/self.rgb_scale))
-        return torch.sqrt(torch.square(px) + torch.square(py)) * (rself.gb_scale/255)
+        return torch.sqrt(torch.square(px) + torch.square(py)) * (self.gb_scale/255)
             
     
 class GMSD_quality(nn.Module):
