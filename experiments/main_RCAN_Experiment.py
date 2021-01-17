@@ -19,17 +19,16 @@ elif scale_factor == 2:
     train_loader = get_loader(mode='train', batch_size=16, augment=True)
     test_loader = get_loader(mode='test')
 
-import trainer as trainer
-trainer.train(model, train_loader, test_loader, mode='RCAN_x2_Baseline')
+# import trainer as trainer
+# trainer.train(model, train_loader, test_loader, mode='RCAN_x2_Baseline')
     
 # import trainer_v6_from_shallow as trainer
 # from models.RCAN_train_from_shallow import RCAN
 # model = RCAN()
 # trainer.train(model, train_loader, test_loader, mode='RCAN_v6_from_shallow')
 
-# import trainer_v8_gmsd as trainer
-# trainer.train(model, train_loader, test_loader, mode='RCAN_x4_v8_gmsd')
-
+import trainer_v8_gmsd as trainer
+trainer.train(model, train_loader, test_loader, mode='RCAN_x4_v8_gmsd')
 
 # import trainer_v10_mshf as trainer
 # trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v10_MSHF')
