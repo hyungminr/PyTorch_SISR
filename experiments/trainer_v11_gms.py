@@ -88,11 +88,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     pretrained_epoch = 500
 
     for epoch in range(num_epochs):
-        if epoch < pretrained_epoch: continue
-        if epoch == pretrained_epoch:
-            model.load_state_dict(torch.load(f'./weights/2021.01.17/RCAN_x2_Baseline/epoch_{pretrained_epoch:04d}.pth'))
-        if epoch == 0:
-            torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
+        # if epoch < pretrained_epoch: continue
+        # if epoch == pretrained_epoch:
+        #    model.load_state_dict(torch.load(f'./weights/2021.01.17/RCAN_x2_Baseline/epoch_{pretrained_epoch:04d}.pth'))
+        # if epoch == 0:
+        #    torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
             
         if epoch == 0:
             with torch.no_grad():
