@@ -37,7 +37,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, num_epochs=1000, device=None, refresh=True):
+def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -80,7 +80,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     for key in ['epoch', 'psnr', 'ssim', 'ms-ssim']:
         hist[key] = []
 
-    for epoch in range(num_epochs):
+    for epoch in range(epoch_start, epoch_start+num_epochs):
 
         if epoch == 0:
             torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
