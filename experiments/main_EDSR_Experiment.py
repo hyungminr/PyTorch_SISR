@@ -95,7 +95,7 @@ elif scale_factor == 2:
 from models.EDSR_x1 import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_denoiser as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_v1_denoise', epoch_start=0, num_epochs=100)
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise', epoch_start=0, num_epochs=100)
 import trainer_deblurer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise_deblur', epoch_start=100, num_epochs=300)
 import trainer as trainer
