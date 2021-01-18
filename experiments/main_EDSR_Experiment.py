@@ -111,8 +111,5 @@ elif scale_factor == 2:
 
 
 
-# import trainer_v13_high_freq as trainer
-# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v13_high_freq_0.2')
-
 import trainer_v13_high_freq as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v14_high_freq_0.5')
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v13_high_freq_0.2')

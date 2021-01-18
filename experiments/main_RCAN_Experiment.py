@@ -32,3 +32,6 @@ trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v8_gmsd_pretrained
 
 # import trainer_v10_mshf as trainer
 # trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v10_MSHF')
+
+import trainer_v13_high_freq as trainer
+trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v13_high_freq_0.2')
