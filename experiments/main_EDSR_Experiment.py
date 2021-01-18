@@ -102,6 +102,7 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise_deblur_and_sr', epoch_start=300, num_epochs=600)
 
 
+from models.EDSR_x1 import EDSR
 import trainer_denoise_and_deblur as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_v2_dnd', epoch_start=0, num_epochs=1000)
 import trainer as trainer
