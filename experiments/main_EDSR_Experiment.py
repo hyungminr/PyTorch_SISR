@@ -98,8 +98,8 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise', epoch_start=0, num_epochs=100)
 # import trainer_deblurer as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise_deblur', epoch_start=100, num_epochs=300)
-import trainer as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise_deblur_and_sr', epoch_start=300, num_epochs=600)
+# import trainer as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_denoise_deblur_and_sr', epoch_start=300, num_epochs=600)
 
 
 import trainer_denoise_and_deblur as trainer
