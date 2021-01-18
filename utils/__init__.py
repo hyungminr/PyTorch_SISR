@@ -25,7 +25,7 @@ def sec2time(sec, n_msec=0):
     if d == 0: return pattern % (h, m, s)
     return ('%d days, ' + pattern) % (d, h, m, s)
     
-def imshow(tensor, resize=None, visualize=True):
+def imshow(tensor, resize=None, visualize=True, filename=None):
     if type(tensor) is list:
         pad = torch.nn.ConstantPad2d(2, 0)
         for i, t in enumerate(tensor):
@@ -40,25 +40,13 @@ def imshow(tensor, resize=None, visualize=True):
     img = t2img(torch.clamp(tensor, 0, 1))
     if resize is not None:
         img = img.resize(resize)
+    if filename is not None:
+        img.save(filename)
     if visualize:
         display(img)
-        return
+        return        
     else:
         return img
-    
-def imsave(tensor, filename, resize=None):
-    if type(tensor) is list:
-        pad = torch.nn.ConstantPad2d(2, 0)
-        for i, t in enumerate(tensor):
-            tensor[i] = pad(t)
-        tensor = torch.cat(tensor, dim=-1) # horizontal concat
-    t2img = T.ToPILImage()
-    # img = t2img(torch.clamp(tensor[0].cpu().detach(), 0, 1))
-    img = t2img(torch.clamp(tensor, 0, 1))
-    if resize is not None:
-        img = img.resize(resize)
-    img.save(filename)
-    return
     
 def normalize(tensor, m=None, M=None):
     m = tensor.min() if m is None else m
