@@ -68,7 +68,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     ######
     
-    GMSD_map = GMS().to(device)
+    GMSD_map = GMS(pad=0).to(device)
     GMSD = GMSD_quality().to(device)
     
     ######

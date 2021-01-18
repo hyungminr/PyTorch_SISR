@@ -79,11 +79,11 @@ class Prewitt(nn.Module):
             
             
 class GMSD(nn.Module):
-    def __init__(self, rgb_scale=1):
+    def __init__(self, rgb_scale=1, pad=1):
         super(GMSD, self).__init__()
         self.rgb_scale = rgb_scale
-        self.prewitt_x = Prewitt('x', pad=0)
-        self.prewitt_y = Prewitt('y', pad=0)
+        self.prewitt_x = Prewitt('x', pad=pad)
+        self.prewitt_y = Prewitt('y', pad=pad)
     def forward(self, img):
         px = self.prewitt_x(img * (255/self.rgb_scale))
         py = self.prewitt_y(img * (255/self.rgb_scale))
