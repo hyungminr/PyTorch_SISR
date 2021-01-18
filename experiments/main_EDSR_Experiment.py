@@ -91,3 +91,8 @@ import trainer_denoiser as trainer
 from models.EDSR_x1 import EDSR
 model = EDSR(scale=scale_factor)
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x1_denoiser')
+
+import trainer_deblurer as trainer
+from models.EDSR_x1 import EDSR
+model = EDSR(scale=scale_factor)
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x1_deblurer')

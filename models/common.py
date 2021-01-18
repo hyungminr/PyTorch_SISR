@@ -11,19 +11,18 @@ class ReLU1(torch.nn.modules.activation.Hardtanh):
         return inplace_str
 
 class Blur(nn.Module):
-    def __init__(self, weight=None):
+    def __init__(self, weight=None, ksize=17, sigma=3):
         super(Blur, self).__init__()
         layers = []
-        layers += [nn.ReflectionPad2d(8)]
-        layers += [nn.Conv2d(3, 3, 17, stride=1, padding=0, bias=None, groups=3)]
+        layers += [nn.ReflectionPad2d(ksize//2)]
+        layers += [nn.Conv2d(3, 3, ksize, stride=1, padding=0, bias=None, groups=3)]
         self.blur = nn.Sequential(*layers)
-        self.weight_init(weight)
+        self.weight_init(weight, ksize, sigma)
             
     def forward(self, img):
         return self.blur(img)
     
     def weight_init(self, weight=None, ksize=17, sigma=3):
-        print(weight)
         if weight is None:
             kernel1d = cv2.getGaussianKernel(ksize=ksize, sigma=sigma)
             kernel2d = np.outer(kernel1d, kernel1d.transpose())
