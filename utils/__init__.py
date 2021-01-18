@@ -120,7 +120,7 @@ def high_pass_filter(tensor_input, sigma=50):
             inv_img = np.fft.ifft2(f_filtered_shifted) # inverse F.T.
             filtered_img = np.abs(inv_img)
             filtered_img -= filtered_img.min()
-            filtered_img = filtered_img / filtered_img.max()
+            filtered_img = filtered_img / (filtered_img.max() + 1e-7)
             filtered_img = filtered_img * 255
             filtered_img = filtered_img.astype(np.uint8)
 
