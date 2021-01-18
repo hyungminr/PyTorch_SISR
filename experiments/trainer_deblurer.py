@@ -10,6 +10,7 @@ import pandas as pd
 import shutil
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+import random
 
 from collections import OrderedDict
 from utils import imsave, sec2time, get_gpu_memory
@@ -82,7 +83,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
         hist[key] = []
 
     blurs = {}
-    for kisze in [3, 5, 7, 9, 11, 13, 15, 17]:
+    for ksize in [3, 5, 7, 9, 11, 13, 15, 17]:
         blurs[ksize] = {}
         for sigma in [0.4, 0.8, 1.0, 1.2, 1.6, 2.0]:
             blurs[ksize][sigma] = Blur(ksize=ksize, sigma=sigma).to(device)
