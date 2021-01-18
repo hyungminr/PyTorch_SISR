@@ -5,6 +5,7 @@ import subprocess
 import torch
 import torchvision.transforms as T
 from PIL import Image
+import cv2
 
 def get_gpu_memory():
     _output_to_list = lambda x: x.decode('ascii').split('\n')[:-1]
@@ -85,3 +86,46 @@ def get_aniso_gaussian_kernel(sigma=2.5, ksize=17, degree=90):
     kernel = img2tensor(image)
     kernel = kernel.squeeze(0)/kernel.sum()
     return kernel
+    
+    
+def high_pass_filter(tensor_input, sigma=50):
+    tensor_output = torch.zeros_like(tensor_input)
+    tensor_input = torch.transpose(tensor_input, 2, 3)
+    tensor_input = torch.transpose(tensor_input, 1, 3)
+    b, h, w, _ = tensor_input.shape
+    for bi in range(b):
+        tensor = tensor_input[bi, :, :, :]
+        tensor = tensor.view(h, w, 3)
+        img = tensor.cpu().numpy()
+        img = np.array(img * 255, dtype=np.uint8)
+        img_high = np.zeros_like(img)
+        img_low = np.zeros_like(img)
+        h, w, _ = img.shape
+        for i in [0, 1, 2]:
+            grey = img[:,:,i] # gray-scale image
+            # r = 50 # how narrower the window is
+            # ham = np.hamming(h)[:,None] # 1D hamming
+            # ham2d = np.sqrt(np.dot(ham, ham.T)) ** r # expand to 2D hamming
+
+            kernel1d = cv2.getGaussianKernel(ksize=w, sigma=sigma)
+            kernel2d = np.outer(kernel1d, kernel1d.transpose())
+            kernel2d = kernel2d / kernel2d.max()
+            kernel2d = cv2.resize(kernel2d, dsize=(w, h))
+            f = cv2.dft(grey.astype(np.float32), flags=cv2.DFT_COMPLEX_OUTPUT)
+            f_shifted = np.fft.fftshift(f)
+            f_complex = f_shifted[:,:,0]*1j + f_shifted[:,:,1]
+
+            f_filtered = (1-kernel2d) * f_complex
+            f_filtered_shifted = np.fft.fftshift(f_filtered)
+            inv_img = np.fft.ifft2(f_filtered_shifted) # inverse F.T.
+            filtered_img = np.abs(inv_img)
+            filtered_img -= filtered_img.min()
+            filtered_img = filtered_img*255 / filtered_img.max()
+            filtered_img = filtered_img.astype(np.uint8)
+
+            img_high[:,:,i] = filtered_img
+        res = torch.tensor(img_high)
+        res = torch.transpose(res, 0, 2)
+        res = torch.transpose(res, 1, 2)
+        tensor_output[bi, :, :, :] = res.unsqueeze(0)
+    return tensor_output / 255
