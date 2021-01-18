@@ -47,6 +47,10 @@ def imshow(tensor, resize=None, visualize=True, filename=None):
         return        
     else:
         return img
+        
+def imsave(tensor, filename, resize=None):
+    imshow(tensor, resize=resize, visualize=False, filename=filename)
+    return
     
 def normalize(tensor, m=None, M=None):
     m = tensor.min() if m is None else m

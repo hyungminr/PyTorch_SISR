@@ -81,7 +81,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
         hist[key] = []
 
     for epoch in range(num_epochs):
-
+        sigma = 0.0004 * (epoch+1)
         if epoch == 0:
             torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
             
@@ -93,12 +93,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     msssims = []
                     for lr, hr, fname in pbar_test:
                         lr = lr.to(device)
-                        hr = hr.to(device)
+                        # hr = hr.to(device)
                         
-                        sr, features = model(lr)
-                        sr = quantize(sr)
+                        _, features = model(lr + torch.rand_like(lr, device=lr.device)*sigma)
+                        dr = features[0]
+                        # sr = quantize(sr)
                         
-                        psnr, ssim, msssim = evaluate(hr, sr)
+                        
+                        psnr, ssim, msssim = evaluate(lr, dr)
                         
                         psnrs.append(psnr)
                         ssims.append(ssim)
@@ -126,15 +128,18 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             losses = []
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
-                hr = hr.to(device)
+                # hr = hr.to(device)
                 
                 # prediction
-                sr, features = model(lr)
+                lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
                 
-                gmsd = GMSD(hr, sr)      
+                _, features = model(lr_input)
+                dr = features[0]
+                
+                gmsd = GMSD(lr, dr)      
                 
                 # training
-                loss = criterion(hr, sr)
+                loss = criterion(lr, dr)
                 loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
@@ -147,8 +152,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
                 
-                sr = quantize(sr)      
-                psnr, ssim, msssim = evaluate(hr, sr)
+                psnr, ssim, msssim = evaluate(lr, dr)
                         
                 psnrs.append(psnr)
                 ssims.append(ssim)
@@ -175,14 +179,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 if step % save_image_every == 0:
                 
-                    z = torch.zeros_like(lr[0])
-                    _, _, llr, _ = lr.shape
-                    _, _, hlr, _ = hr.shape
-                    if hlr // 2 == llr:
-                        xz = torch.cat((lr[0], z), dim=-2)
-                    elif hlr // 4 == llr:
-                        xz = torch.cat((lr[0], z, z, z), dim=-2)
-                    imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
+                    imsave([lr_input[0], dr[0], lr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
                 
@@ -205,18 +202,19 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             fname = fname[0].split('/')[-1].split('.pt')[0]
                             
                             lr = lr.to(device)
-                            hr = hr.to(device)
+                            # hr = hr.to(device)
 
-                            sr, features = model(lr)
+                            lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
                             
-                            mshf_hr = mshf(hr)
-                            mshf_sr = mshf(sr)
+                            _, features = model(lr_input)
+                            dr = features[0]
                             
-                            gmsd = GMSD(hr, sr)  
+                            mshf_lr = mshf(lr)
+                            mshf_dr = mshf(dr)
                             
-                            sr = quantize(sr)
-
-                            psnr, ssim, msssim = evaluate(hr, sr)
+                            gmsd = GMSD(lr, dr)  
+                            
+                            psnr, ssim, msssim = evaluate(lr, dr)
 
                             psnrs.append(psnr)
                             ssims.append(ssim)
@@ -235,17 +233,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             pbar_test.set_postfix(pfix_test)
                             
-                            z = torch.zeros_like(lr[0])
-                            _, _, llr, _ = lr.shape
-                            _, _, hlr, _ = hr.shape
-                            if hlr // 2 == llr:
-                                xz = torch.cat((lr[0], z), dim=-2)
-                            elif hlr // 4 == llr:
-                                xz = torch.cat((lr[0], z, z, z), dim=-2)
-                            imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
+                            imsave([lr_input[0], dr[0], lr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
                             
-                            mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
-                                                  torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
+                            mshf_vis = torch.cat((torch.cat([mshf_dr[:,i,:,:] for i in range(mshf_dr.shape[1])], dim=-1),
+                                                  torch.cat([mshf_lr[:,i,:,:] for i in range(mshf_lr.shape[1])], dim=-1)), dim=-2)
                             
                             imsave(mshf_vis, f'{result_dir}/MSHF_{fname}.jpg')
                             
