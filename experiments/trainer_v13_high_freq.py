@@ -130,7 +130,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 lr = lr.to(device)
                 hr = hr.to(device)
                 
-                if torch.rand(1) < 0.2:
+                # if torch.rand(1) < 0.2:
+                if torch.rand(1) < 0.5:
                     lr = high_pass_filter(lr)
                     hr = high_pass_filter(hr)
                 
