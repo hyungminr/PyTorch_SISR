@@ -33,5 +33,11 @@ elif scale_factor == 2:
 # import trainer_v10_mshf as trainer
 # trainer.train(model, train_loader, test_loader, mode='RCAN_x2_v10_MSHF')
 
-import trainer_v13_high_freq as trainer
-trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v13_high_freq_0.2')
+# import trainer_v13_high_freq as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v13_high_freq_0.2')
+
+
+from models.RCAN_freq import RCAN_freq as RCAN
+model = RCAN()
+import trainer_v14_freq_domain as trainer
+trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v14_freq_domain')

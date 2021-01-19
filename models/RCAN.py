@@ -17,20 +17,20 @@ class MeanShift(nn.Conv2d):
 
 class RCAB(nn.Module):
     """ Residual Channel Attention Block """
-    def __init__(self, kernel=3, padding=1, bias=True):
+    def __init__(self, kernel=3, padding=1, bias=True, num_feats=64):
         super().__init__()
         
         layers = []
-        layers += [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.conv_in = nn.Sequential(*layers)
         
         layers = []
         layers += [nn.AdaptiveAvgPool2d(1)]
-        layers += [nn.Conv2d(in_channels=64, out_channels= 4, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels= 4, kernel_size=kernel, padding=padding, bias=bias)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels= 4, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels= 4, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         layers += [nn.Sigmoid()]
         self.channel_att = nn.Sequential(*layers)
         
@@ -42,12 +42,12 @@ class RCAB(nn.Module):
 
 class RG(nn.Module):
     """ Residual Group """
-    def __init__(self, num_RCAB=16, kernel=3, padding=1, bias=True):
+    def __init__(self, num_RCAB=16, kernel=3, padding=1, bias=True, num_feats=64):
         super().__init__()
         
         layers = []
-        layers += [RCAB() for _ in range(num_RCAB)]
-        layers += [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [RCAB(num_feats=num_feats) for _ in range(num_RCAB)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.rcab = nn.Sequential(*layers)
         
     def forward(self, x):
@@ -56,25 +56,25 @@ class RG(nn.Module):
     
 class RCAN(nn.Module):
     """  """
-    def __init__(self, num_RG=10, scale=2, kernel=3, padding=1, bias=True):
+    def __init__(self, num_RG=10, scale=2, kernel=3, padding=1, bias=True, num_feats=64):
         super().__init__()
         
         self.sub_mean = MeanShift(mode='sub')
         
-        layers = [nn.Conv2d(in_channels= 3, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers = [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
-        blocks = [RG() for _ in range(num_RG)]
-        blocks += [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        blocks = [RG(num_feats=num_feats) for _ in range(num_RG)]
+        blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.body = nn.ModuleList(blocks)
         
         
         layers = []
         if (scale & (scale - 1)) == 0: # Is scale = 2^n?
             for _ in range(int(math.log(scale, 2))):
-                layers += [nn.Conv2d(in_channels=64, out_channels=64*4, kernel_size=kernel, padding=padding, bias=bias)]
+                layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats*4, kernel_size=kernel, padding=padding, bias=bias)]
                 layers += [nn.PixelShuffle(2)]
-        layers += [nn.Conv2d(in_channels=64, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
         self.tail = nn.Sequential(*layers)
         
         self.add_mean = MeanShift(mode='add')
