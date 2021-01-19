@@ -145,12 +145,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 gmsd_hr = GMSD_map(hr)   
                 gmsd = GMSD(hr, sr)     
                         
-                loss_gmsd = criterion(gmsd_hr, gmsd_sr)
+                loss_gmsd = criterion(gmsd_sr, gmsd_hr)
                 #####
                 
                 # training
-                loss = criterion(hr, sr)
-                loss_tot = loss + loss_gmsd
+                loss = criterion(sr, hr)
+                loss_tot = loss + 0.2 * loss_gmsd
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
