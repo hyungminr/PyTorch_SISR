@@ -68,7 +68,7 @@ class EDSR(nn.Module):
         x = self.sub_mean(img)
         
         # shallow feature
-        x_shallow = self.head(img)
+        x_shallow = self.head(x)
         
         # deep feature
         x_deep = [x_shallow]

@@ -134,7 +134,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 gmsd = GMSD(hr, sr)      
                 
                 # training
-                loss = criterion(hr, sr)
+                loss = criterion(sr, hr)
                 loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
