@@ -10,7 +10,6 @@ import pandas as pd
 import shutil
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-import random
 
 from collections import OrderedDict
 from utils import imsave, sec2time, get_gpu_memory
@@ -20,7 +19,6 @@ from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
 from models.common import MSHF
-from models.common import Blur
 
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
@@ -69,7 +67,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     mshf = MSHF(3, 3).to(device)
-
+    DOWN = nn.MaxPool2d(2).to(device)
+    
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -82,15 +81,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     for key in ['epoch', 'psnr', 'ssim', 'ms-ssim']:
         hist[key] = []
 
-    blurs = {}
-    for ksize in [3, 5, 7]:
-        blurs[ksize] = {}
-        for sigma in [0.4, 0.8, 1.0, 1.2, 1.6, 2.0]:
-            blurs[ksize][sigma] = Blur(ksize=ksize, sigma=sigma).to(device)
-    noise_sigma = 0.3
-    
     for epoch in range(epoch_start, epoch_start+num_epochs):
-        
+
         if epoch == 0:
             torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
             
@@ -102,19 +94,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     msssims = []
                     for lr, hr, fname in pbar_test:
                         lr = lr.to(device)
-                        # hr = hr.to(device)
+                        hr = hr.to(device)
                         
-                        blur = blurs[7][2.0]                        
+                        sr, features = model(lr)
                         
-                        lr_input = blur(lr)
-                        lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma
+                        sr = quantize(sr)
                         
-                        _, features = model(lr_input)
-                        dr = features[0]
-                        # sr = quantize(sr)
-                        
-                        
-                        psnr, ssim, msssim = evaluate(lr, dr)
+                        psnr, ssim, msssim = evaluate(hr, sr)
                         
                         psnrs.append(psnr)
                         ssims.append(ssim)
@@ -142,30 +128,18 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             losses = []
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
-                # hr = hr.to(device)
+                hr = hr.to(device)
                 
                 # prediction
-                ksize_ = random.choice([3, 5, 7])
-                sigma_ = random.choice([0.4, 0.8, 1.0, 1.2, 1.6, 2.0])
-                blur = blurs[ksize_][sigma_]
-                
-                dnd = random.choice(['blur', 'noise', 'blur_and_noise'])
-                if dnd == 'blur':
-                    lr_input = blur(lr)
-                elif dnd == 'noise':
-                    lr_input = lr + torch.rand_like(lr, device=lr.device)*noise_sigma
-                else:
-                    lr_input = blur(lr)
-                    lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma                        
-                
-                _, features = model(lr_input)
+                sr, features = model(lr)
                 dr = features[0]
                 
-                gmsd = GMSD(lr, dr)      
+                gmsd = GMSD(hr, sr)      
                 
                 # training
-                loss = criterion(lr, dr)
-                loss_tot = loss
+                loss = criterion(sr, hr)
+                loss_down = criterion(dr, DOWN(hr))
+                loss_tot = loss + 0.1 * loss_down
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -177,7 +151,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
                 
-                psnr, ssim, msssim = evaluate(lr, dr)
+                sr = quantize(sr)      
+                psnr, ssim, msssim = evaluate(hr, sr)
                         
                 psnrs.append(psnr)
                 ssims.append(ssim)
@@ -204,7 +179,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 if step % save_image_every == 0:
                 
-                    imsave([lr_input[0], dr[0], lr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
+                    z = torch.zeros_like(lr[0])
+                    _, _, llr, _ = lr.shape
+                    _, _, hlr, _ = hr.shape
+                    if hlr // 2 == llr:
+                        xz = torch.cat((lr[0], z), dim=-2)
+                    elif hlr // 4 == llr:
+                        xz = torch.cat((lr[0], z, z, z), dim=-2)
+                    imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
                 
@@ -227,21 +209,18 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             fname = fname[0].split('/')[-1].split('.pt')[0]
                             
                             lr = lr.to(device)
-                            # hr = hr.to(device)
+                            hr = hr.to(device)
 
-                            blur = blurs[7][2.0]
-                            lr_input = blur(lr)
-                            lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma      
+                            sr, features = model(lr)
                             
-                            _, features = model(lr_input)
-                            dr = features[0]
+                            mshf_hr = mshf(hr)
+                            mshf_sr = mshf(sr)
                             
-                            mshf_lr = mshf(lr)
-                            mshf_dr = mshf(dr)
+                            gmsd = GMSD(hr, sr)  
                             
-                            gmsd = GMSD(lr, dr)  
-                            
-                            psnr, ssim, msssim = evaluate(lr, dr)
+                            sr = quantize(sr)
+
+                            psnr, ssim, msssim = evaluate(hr, sr)
 
                             psnrs.append(psnr)
                             ssims.append(ssim)
@@ -260,10 +239,17 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             pbar_test.set_postfix(pfix_test)
                             
-                            imsave([lr_input[0], dr[0], lr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
+                            z = torch.zeros_like(lr[0])
+                            _, _, llr, _ = lr.shape
+                            _, _, hlr, _ = hr.shape
+                            if hlr // 2 == llr:
+                                xz = torch.cat((lr[0], z), dim=-2)
+                            elif hlr // 4 == llr:
+                                xz = torch.cat((lr[0], z, z, z), dim=-2)
+                            imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
                             
-                            mshf_vis = torch.cat((torch.cat([mshf_dr[:,i,:,:] for i in range(mshf_dr.shape[1])], dim=-1),
-                                                  torch.cat([mshf_lr[:,i,:,:] for i in range(mshf_lr.shape[1])], dim=-1)), dim=-2)
+                            mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
+                                                  torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
                             
                             imsave(mshf_vis, f'{result_dir}/MSHF_{fname}.jpg')
                             
