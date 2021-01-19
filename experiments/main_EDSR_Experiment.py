@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 2
+scale_factor = 4
 
 model = EDSR(scale=scale_factor)
 
@@ -21,7 +21,7 @@ elif scale_factor == 2:
     test_loader = get_loader(mode='test')
 
 # import trainer
-# trainer.train(model, train_loader, test_loader, mode='EDSR_x2_Baseline')
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_Baseline')
 
 # import trainer_v1_pool as trainer
 # trainer.train(model, train_loader, test_loader, mode='EDSR_v1_pool')
@@ -116,10 +116,10 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v14_freq_domain')
 
 
-# from models.EDSR_freq_concat import EDSR
-# model = EDSR()
-# import trainer_v15_freq_domain_concat as trainer
-# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
+from models.EDSR_freq_concat import EDSR
+model = EDSR()
+import trainer_v15_freq_domain_concat as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
 
 
 # import trainer_v8_gmsd as trainer
@@ -128,8 +128,8 @@ elif scale_factor == 2:
 # import trainer_v11_gms as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v11_GMS')
 
-import trainer_v12_gms_mshf as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v12_GMS_MSHF')
+# import trainer_v12_gms_mshf as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v12_GMS_MSHF')
 
 # from models.EDSR_x1 import EDSR
 # model = EDSR()
