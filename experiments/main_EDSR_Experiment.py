@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 4
+scale_factor = 2
 
 model = EDSR(scale=scale_factor)
 
@@ -116,10 +116,10 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v14_freq_domain')
 
 
-from models.EDSR_freq_concat import EDSR
-model = EDSR(scale=scale_factor)
-import trainer_v15_freq_domain_concat as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
+# from models.EDSR_freq_concat import EDSR
+# model = EDSR(scale=scale_factor)
+# import trainer_v15_freq_domain_concat as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
 
 
 # import trainer_v8_gmsd as trainer
@@ -137,3 +137,7 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_dnd', epoch_start=0, num_epochs=1000)
 # import trainer_denoise_and_deblur_and_sr as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x2_dnd_sr', epoch_start=0, num_epochs=1000)
+
+
+import trainer_v16_train_high_freq as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v16_train_high_freq')
