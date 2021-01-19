@@ -20,8 +20,8 @@ elif scale_factor == 2:
     train_loader = get_loader(mode='train', batch_size=16, augment=True)
     test_loader = get_loader(mode='test')
 
-import trainer
-trainer.train(model, train_loader, test_loader, mode='EDSR_x2_Baseline')
+# import trainer
+# trainer.train(model, train_loader, test_loader, mode='EDSR_x2_Baseline')
 
 # import trainer_v1_pool as trainer
 # trainer.train(model, train_loader, test_loader, mode='EDSR_v1_pool')
