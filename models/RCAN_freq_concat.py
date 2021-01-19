@@ -61,7 +61,7 @@ class RCAN(nn.Module):
         
         self.sub_mean = MeanShift(mode='sub')
         
-        layers = [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        layers = [nn.Conv2d(in_channels=9, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
         blocks = [RG(num_feats=num_feats) for _ in range(num_RG)]
@@ -74,7 +74,7 @@ class RCAN(nn.Module):
             for _ in range(int(math.log(scale, 2))):
                 layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats*4, kernel_size=kernel, padding=padding, bias=bias)]
                 layers += [nn.PixelShuffle(2)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=9, kernel_size=kernel, padding=padding, bias=bias)]
         self.tail = nn.Sequential(*layers)
         
         self.add_mean = MeanShift(mode='add')
