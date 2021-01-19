@@ -117,7 +117,7 @@ elif scale_factor == 2:
 
 
 from models.EDSR_freq_concat import EDSR
-model = EDSR()
+model = EDSR(scale=scale_factor)
 import trainer_v15_freq_domain_concat as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
 
