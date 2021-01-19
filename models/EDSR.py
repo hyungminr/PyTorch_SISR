@@ -20,13 +20,13 @@ class MeanShift(nn.Conv2d):
 
 class ResBlock(nn.Module):
     """ Residual Block """
-    def __init__(self, kernel=3, padding=1, bias=True, res_scale=1):
+    def __init__(self, kernel=3, num_feats=64, padding=1, bias=True, res_scale=1):
         super().__init__()
         
         layers = []
-        layers += [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.conv = nn.Sequential(*layers)
         self.res_scale = res_scale
         
@@ -45,7 +45,7 @@ class EDSR(nn.Module):
         layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
-        blocks = [ResBlock() for _ in range(16)]
+        blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
         blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.body = nn.ModuleList(blocks)
         
