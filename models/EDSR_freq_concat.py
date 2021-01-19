@@ -42,7 +42,7 @@ class EDSR(nn.Module):
                 
         self.sub_mean = MeanShift(mode='sub')
         layers = []
-        layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels= 9, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
         blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
@@ -54,15 +54,17 @@ class EDSR(nn.Module):
             for _ in range(int(math.log(scale, 2))):
                 layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats*4, kernel_size=kernel, padding=padding, bias=bias)]
                 layers += [nn.PixelShuffle(2)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=9, kernel_size=kernel, padding=padding, bias=bias)]
         self.tail = nn.Sequential(*layers)
         
         self.add_mean = MeanShift(mode='add')
         
     def forward(self, img):    
     
+        img, img_high, img_low = img[:,:3,:,:], img[:,3:6,:,:], img[:,6:,:,:]
         # meanshift (preprocess)
         x = self.sub_mean(img)
+        x = torch.cat((x, img_high, img_low), dim=1)
         
         # shallow feature
         x_shallow = self.head(x)
@@ -79,6 +81,7 @@ class EDSR(nn.Module):
         x_up = self.tail(x_feature)
         
         # meanshift (postprocess)
-        out = self.add_mean(x_up)
+        out = self.add_mean(x_up[:,:3,:,:])
+        out = torch.cat((out, x_up[:,3:,:,:]), dim=1)
         
         return out, x_deep
