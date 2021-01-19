@@ -116,11 +116,14 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v14_freq_domain')
 
 
-from models.EDSR_freq_concat import EDSR
-model = EDSR()
-import trainer_v15_freq_domain_concat as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
+# from models.EDSR_freq_concat import EDSR
+# model = EDSR()
+# import trainer_v15_freq_domain_concat as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v15_freq_domain_concat')
 
+
+import trainer_v8_gmsd as trainer
+trainer.train(model, train_loader, test_loader, mode='EDSR_x{scale_factor}_v8_GMSD')
 
 # from models.EDSR_x1 import EDSR
 # model = EDSR()
