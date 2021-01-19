@@ -142,8 +142,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # training
                 loss = criterion(hr, sr)
-                loss_freq = criterion(hr, freqs[0]) + criterion(hr_high, freqs[2]) + criterion(hr_low, freqs[2]) 
-                loss_tot = loss + 0.2 * loss_freq
+                loss_freq = criterion(hr, freqs[0]) + criterion(hr_high, freqs[1]) + criterion(hr_low, freqs[2]) 
+                loss_tot = loss + 0.1 * loss_freq
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
