@@ -138,7 +138,7 @@ model = EDSR()
 import trainer_denoise_and_deblur as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd', epoch_start=0, num_epochs=1000)
 import trainer_denoise_and_deblur_and_sr as trainer
-# model.load_state_dict(torch.load('./weights/2021.01.19/EDSR_x2_dnd/epoch_1000.pth'))
+model.load_state_dict(torch.load('./weights/2021.01.20/EDSR_x4_dnd/epoch_1000.pth'))
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd_sr', epoch_start=0, num_epochs=1000)
 
 
