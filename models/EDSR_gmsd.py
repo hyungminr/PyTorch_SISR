@@ -29,7 +29,7 @@ class ResBlock(nn.Module):
         layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.conv = nn.Sequential(*layers)
         self.res_scale = res_scale
-        layers = [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        layers = [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.conv_last = nn.Sequential(*layers)
         
     def forward(self, x):
