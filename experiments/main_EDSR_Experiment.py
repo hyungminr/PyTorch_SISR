@@ -146,7 +146,12 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v16_train_high_freq')
 
 
-from models.EDSR_x1x2x4 import EDSR
-model = EDSR(scale=4)
-import trainer_v17_x1x2x4 as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v17_x1x2x4')
+# from models.EDSR_x1x2x4 import EDSR
+# model = EDSR(scale=4)
+# import trainer_v17_x1x2x4 as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v17_x1x2x4')
+
+from models.EDSR_freq_fusion import EDSR_fusion as EDSR
+model = EDSR(scale=scale_factor)
+import trainer_v18_freq_fusion as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v18_freq_fusion')
