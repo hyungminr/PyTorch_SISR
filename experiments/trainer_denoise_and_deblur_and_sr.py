@@ -68,7 +68,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     mshf = MSHF(3, 3).to(device)
-    DOWN = nn.MaxPool2d(2).to(device)
+    DOWN = nn.MaxPool2d(4).to(device)
     
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
