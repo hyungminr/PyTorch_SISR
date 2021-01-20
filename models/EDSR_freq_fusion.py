@@ -38,7 +38,7 @@ class ResBlock(nn.Module):
 
 class FusionBlock(nn.Module):
     """ Residual Block """
-    def __init__(self, kernel=1, in_channels=9, out_channels=3, num_feats=64, padding=0, bias=True, res_scale=1):
+    def __init__(self, kernel=3, in_channels=6, out_channels=3, num_feats=64, padding=1, bias=True, res_scale=1):
         super().__init__()
         
         layers = []
@@ -115,5 +115,9 @@ class EDSR_fusion(nn.Module):
         img, _ = self.EDSR_1(img)
         hf, _  = self.EDSR_2(hf)
         lf, _  = self.EDSR_3(lf)
-        out = self.Fusion(torch.cat([self.sub_mean(img), self.sub_mean(hf), self.sub_mean(lf)], dim=1))
-        return self.add_mean(out), img, hf, lf
+        
+        out = self.Fusion(torch.cat([self.sub_mean(hf), self.sub_mean(lf)], dim=1))
+        
+        out = img + self.add_mean(out)
+        
+        return out, img, hf, lf
