@@ -153,5 +153,8 @@ elif scale_factor == 2:
 
 from models.EDSR_freq_fusion import EDSR_fusion as EDSR
 model = EDSR(scale=scale_factor)
+model.EDSR_1.load_state_dict(torch.load(f'./weights/Benchmark/EDSR_x{scale_factor}.pth'))
+model.EDSR_2.load_state_dict(torch.load(f'./weights/Benchmark/EDSR_x{scale_factor}.pth'))
+model.EDSR_3.load_state_dict(torch.load(f'./weights/Benchmark/EDSR_x{scale_factor}.pth'))
 import trainer_v18_freq_fusion as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v18_freq_fusion')

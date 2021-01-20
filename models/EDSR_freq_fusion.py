@@ -106,7 +106,7 @@ class EDSR_fusion(nn.Module):
         super().__init__()
         self.EDSR_1 = EDSR(None, num_RB, num_feats, scale, kernel, padding, bias)
         self.EDSR_2 = EDSR(None, num_RB, num_feats, scale, kernel, padding, bias)
-        self.EDSR_3 = EDSR(None, num_RB, 16, scale, kernel, padding, bias)
+        self.EDSR_3 = EDSR(None, num_RB, num_feats, scale, kernel, padding, bias)
         self.Fusion = FusionBlock()
         self.sub_mean = MeanShift(mode='sub')
         self.add_mean = MeanShift(mode='add')
