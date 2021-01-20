@@ -134,9 +134,9 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v12_GMS_MSHF')
 
 from models.EDSR_x1 import EDSR
-model = EDSR()
+model = EDSR(scale=scale_factor)
 import trainer_denoise_and_deblur as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd', epoch_start=0, num_epochs=1000)
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd', epoch_start=0, num_epochs=1)
 import trainer_denoise_and_deblur_and_sr as trainer
 model.load_state_dict(torch.load('./weights/2021.01.20/EDSR_x4_dnd/epoch_1000.pth'))
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd_sr', epoch_start=0, num_epochs=1000)
