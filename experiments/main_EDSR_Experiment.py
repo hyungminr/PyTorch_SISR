@@ -133,14 +133,20 @@ elif scale_factor == 2:
 # import trainer_v12_gms_mshf as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v12_GMS_MSHF')
 
-from models.EDSR_x1 import EDSR
-model = EDSR(scale=scale_factor)
-import trainer_denoise_and_deblur as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd', epoch_start=0, num_epochs=1000)
-import trainer_denoise_and_deblur_and_sr as trainer
-# model.load_state_dict(torch.load('./weights/2021.01.20/EDSR_x4_dnd/epoch_1000.pth'))
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd_sr', epoch_start=0, num_epochs=1000)
+# from models.EDSR_x1 import EDSR
+# model = EDSR(scale=scale_factor)
+# import trainer_denoise_and_deblur as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd', epoch_start=0, num_epochs=1000)
+# import trainer_denoise_and_deblur_and_sr as trainer
+# # model.load_state_dict(torch.load('./weights/2021.01.20/EDSR_x4_dnd/epoch_1000.pth'))
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_dnd_sr', epoch_start=0, num_epochs=1000)
 
 
 # import trainer_v16_train_high_freq as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v16_train_high_freq')
+
+
+from models.EDSR_x1x2x4 import EDSR
+model = EDSR(scale=4)
+import trainer_v17_x1x2x4 as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v17_x1x2x4')
