@@ -42,7 +42,12 @@ elif scale_factor == 2:
 # import trainer_v14_freq_domain as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v14_freq_domain')
 
-from models.RCAN_freq_concat import RCAN
-model = RCAN()
-import trainer_v15_freq_domain_concat as trainer
-trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v15_freq_domain_concat')
+# from models.RCAN_freq_concat import RCAN
+# model = RCAN()
+# import trainer_v15_freq_domain_concat as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v15_freq_domain_concat')
+
+from models.RCAN import RCAN
+model = RCAN(scale=scale_factor)
+import trainer as trainer
+trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_Baseline')
