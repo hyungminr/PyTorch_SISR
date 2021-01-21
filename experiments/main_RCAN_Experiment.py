@@ -47,7 +47,16 @@ elif scale_factor == 2:
 # import trainer_v15_freq_domain_concat as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_v15_freq_domain_concat')
 
-from models.RCAN import RCAN
+# from models.RCAN import RCAN
+# model = RCAN(scale=scale_factor)
+# import trainer as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_Baseline')
+
+
+from models.RCAN_x1 import RCAN
 model = RCAN(scale=scale_factor)
-import trainer as trainer
-trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_Baseline')
+import trainer_denoise_and_deblur as trainer
+trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_dnd', epoch_start=0, num_epochs=1000)
+import trainer_denoise_and_deblur_and_sr as trainer
+# model.load_state_dict(torch.load('./weights/2021.01.20/EDSR_x4_dnd/epoch_1000.pth'))
+trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_dnd_sr', epoch_start=0, num_epochs=1000)
