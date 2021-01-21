@@ -3,6 +3,7 @@
 *.pth
 *.pyc
 *.pt
+*.bak
 *.csv
 *.0
 *.sh

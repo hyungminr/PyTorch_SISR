@@ -19,6 +19,7 @@ from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
 from models.common import MSHF
+from models.Morphology import Opening
 
 from utils import pass_filter
 
@@ -69,6 +70,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     mshf = MSHF(3, 3).to(device)
+    opening = Opening().to(device)
 
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
@@ -136,8 +138,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 gmsd = GMSD(hr, sr)
                 
+                for _ in range(10): gmsd = opening(gmsd)
+                gmsd = gmsd / gmsd.max()
+                gmsd = gmsd.detach()
+                
                 # training
-                loss = criterion(sr, hr)
+                loss = criterion(sr * gmsd, hr * gmsd)
                 loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
