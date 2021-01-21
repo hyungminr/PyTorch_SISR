@@ -160,5 +160,11 @@ elif scale_factor == 2:
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v18_freq_fusion')
 
 
-import trainer_v19_gmsd_weighted_loss as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v19_gmsd_weighted_loss')
+# import trainer_v19_gmsd_weighted_loss as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v19_gmsd_weighted_loss')
+
+import trainer_v20_gmsd_masked_loss as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v20_gmsd_masked_loss')
+
+
+
