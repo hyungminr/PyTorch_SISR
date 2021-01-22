@@ -23,7 +23,11 @@ elif scale_factor == 2:
 import trainer_bika as trainer
 trainer.train(model, train_loader, test_loader, mode=f'BIKA_x{scale_factor}_Baseline')
 """
-
+"""
 import trainer_bika_down_nn as trainer
 trainer.train(model, train_loader, test_loader, mode=f'BIKA_x{scale_factor}_Down_nn')
+"""
+
+import trainer_bika_pretrain_deblur as trainer
+trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'BIKA_x{scale_factor}_Deblur_Pretrain')
 

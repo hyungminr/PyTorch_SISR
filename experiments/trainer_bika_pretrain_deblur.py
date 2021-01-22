@@ -8,6 +8,7 @@ import time
 import numpy as np
 import pandas as pd
 import shutil
+import random
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -19,6 +20,7 @@ from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
 from models.common import MSHF
+from models.common import Blur
 
 from utils import pass_filter
 
@@ -39,7 +41,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True):
+def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -69,7 +71,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     mshf = MSHF(3, 3).to(device)
-
+    
+    up = torch.nn.UpsamplingNearest2d(scale_factor=scale)
+    
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -82,6 +86,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     for key in ['epoch', 'psnr', 'ssim', 'ms-ssim']:
         hist[key] = []
 
+    blurs = {}
+    ksizes = [3, 5, 7]
+    sigmas = [0.1, 0.2, 0.4, 0.8, 1.0]
+    for ksize in ksizes:
+        blurs[ksize] = {}
+        for sigma in sigmas:
+            blurs[ksize][sigma] = Blur(ksize=ksize, sigma=sigma).to(device)
             
     for epoch in range(epoch_start, epoch_start+num_epochs):
 
@@ -98,11 +109,15 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         lr = lr.to(device)
                         hr = hr.to(device)
                                                 
-                        sr, deb = model(lr)
+                        blur = blurs[max(ksizes)][max(sigmas)]                        
                         
-                        sr = quantize(sr)
+                        lr_input = blur(lr)
                         
-                        psnr, ssim, msssim = evaluate(hr, sr)
+                        sr, deb = model(lr_input)
+                        
+                        sr = quantize(deb)
+                        
+                        psnr, ssim, msssim = evaluate(lr, sr)
                         
                         psnrs.append(psnr)
                         ssims.append(ssim)
@@ -132,14 +147,20 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 lr = lr.to(device)
                 hr = hr.to(device)
                                 
-                # prediction
-                sr, deb = model(lr)
+                ksize_ = random.choice(ksizes)
+                sigma_ = random.choice(sigmas)
+                blur = blurs[ksize_][sigma_]   
+                lr_input = blur(lr)
                 
-                gmsd = GMSD(hr, sr)
+                # prediction
+                sr, deb = model(lr_input)
+                
+                gmsd = GMSD(lr, deb)
                 
                 # training
-                loss = criterion(sr, hr)
-                loss_tot = loss
+                loss = criterion(deb, lr)
+                loss_sr = criterion(sr, up(lr))
+                loss_tot = loss + 0.1 * loss_sr
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -211,16 +232,18 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             lr = lr.to(device)
                             hr = hr.to(device)
                             
-                            sr, deb = model(lr)
+                            blur = blurs[max(ksizes)][max(sigmas)]
+                            lr_input = blur(lr)
+                            sr, deb = model(lr_input)
                             
-                            mshf_hr = mshf(hr)
-                            mshf_sr = mshf(sr)
+                            mshf_lr = mshf(deb)
+                            mshf_sr = mshf(deb)
                             
-                            gmsd = GMSD(hr, sr)  
+                            gmsd = GMSD(lr, deb)  
                             
-                            sr = quantize(sr)
+                            sr = quantize(deb)
 
-                            psnr, ssim, msssim = evaluate(hr, sr)
+                            psnr, ssim, msssim = evaluate(lr, sr)
 
                             psnrs.append(psnr)
                             ssims.append(ssim)
