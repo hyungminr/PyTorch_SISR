@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 2
+scale_factor = 4
 
 model = EDSR(scale=scale_factor)
 
@@ -206,6 +206,6 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v24_
 """
 
 from models.EDSR_x1 import EDSR
-model = EDSR(scale=2)
+model = EDSR(scale=scale_factor)
 import trainer_deblur_nn_upscaled as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v25_deblur_nn_upscaled')
+trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v25_deblur_nn_upscaled')

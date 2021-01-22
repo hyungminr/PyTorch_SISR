@@ -39,7 +39,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True):
+def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -69,8 +69,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     mshf = MSHF(3, 3).to(device)
-    down = torch.nn.MaxPool2d(2)
-    upnn = torch.nn.UpsamplingNearest2d(scale_factor=2)
+    down = torch.nn.MaxPool2d(scale)
+    upnn = torch.nn.UpsamplingNearest2d(scale_factor=scale)
 
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
