@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 4
+scale_factor = 2
 
 model = EDSR(scale=scale_factor)
 
@@ -188,7 +188,7 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_
 
 import trainer_v22_gmsd_soft_masked_loss_vgg_perceptual as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v22_gmsd_soft_masked_loss_vgg_perceptual')
-"""
+
 
 
 from models.EDSR_x1 import EDSR
@@ -203,3 +203,9 @@ import trainer
 for n, p in model.named_parameters():
     if 'tail' not in n: p.requires_grad = False
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v24_sr_with_pretrained_deblur_fixed')
+"""
+
+from models.EDSR_x1 import EDSR
+model = EDSR(scale=2)
+import trainer_deblur_nn_upscaled as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v25_deblur_nn_upscaled')
