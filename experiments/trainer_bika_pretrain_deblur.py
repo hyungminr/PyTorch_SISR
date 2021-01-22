@@ -144,7 +144,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             msssims = []
             losses = []
             for lr, hr, _ in pbar:
-                break
                 lr = lr.to(device)
                 hr = hr.to(device)
                                 
@@ -243,9 +242,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             gmsd = GMSD(lr, deb)  
                             
-                            sr = quantize(deb)
+                            deb = quantize(deb)
 
-                            psnr, ssim, msssim = evaluate(lr, sr)
+                            psnr, ssim, msssim = evaluate(lr, deb)
 
                             psnrs.append(psnr)
                             ssims.append(ssim)
@@ -276,14 +275,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             elif hlr // 4 == llr:
                                 xz = torch.cat((lr[0], z, z, z), dim=-2)
                             
-                            print(xz.shape)
-                            print(sr.shape)
-                            print(ulr.shape)
-                            print(hr.shape)
                             imsave([xz, sr[0], ulr[0], hr[0]], f'{result_dir}/{fname}.jpg')
                             
                             mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
-                                                  torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
+                                                  torch.cat([mshf_lr[:,i,:,:] for i in range(mshf_lr.shape[1])], dim=-1)), dim=-2)
                             
                             imsave(mshf_vis, f'{result_dir}/MSHF_{fname}.jpg')
                             
