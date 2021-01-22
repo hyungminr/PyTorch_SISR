@@ -189,12 +189,12 @@ import trainer_deblurer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_deblur', epoch_start=0, num_epochs=1000)
 
 
-
+"""
 import trainer_v21_gmsd_soft_masked_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_gmsd_soft_masked_loss')
-"""
 
+"""
 import trainer_v22_gmsd_soft_masked_loss_vgg_perceptual as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v22_gmsd_soft_masked_loss_vgg_perceptual')
-
+"""
 
