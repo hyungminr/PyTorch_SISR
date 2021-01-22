@@ -19,7 +19,11 @@ if scale_factor == 4:
 elif scale_factor == 2:
     train_loader = get_loader(mode='train', batch_size=16, augment=True)
     test_loader = get_loader(mode='test')
-
+"""
 import trainer_bika as trainer
 trainer.train(model, train_loader, test_loader, mode=f'BIKA_x{scale_factor}_Baseline')
+"""
+
+import trainer_bika_down_nn as trainer
+trainer.train(model, train_loader, test_loader, mode=f'BIKA_x{scale_factor}_Down_nn')
 
