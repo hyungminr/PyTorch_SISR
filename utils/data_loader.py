@@ -61,8 +61,8 @@ class dataset(torch.utils.data.Dataset):
         w = self.width // self.scale_factor
         h = self.height // self.scale_factor
         if self.augment:
-            left = np.random.randint(tensor_width - w - 1)
-            top = np.random.randint(tensor_height - h - 1)
+            left = np.random.randint(max(0, tensor_width - w - 1))
+            top = np.random.randint(max(0, tensor_height - h - 1))
         else:
             left = (tensor_width - w) // 2
             top = (tensor_height - h) // 2
