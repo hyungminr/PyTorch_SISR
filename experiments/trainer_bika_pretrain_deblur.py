@@ -265,15 +265,17 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             lrx = torch.cat([lr_input[0], deb[0], lr[0]], dim=-1)
                             
-                            z = torch.zeros_like(lrx)
+                            
+                            z = torch.zeros_like(lr[0])
                             _, _, llr, _ = lr.shape
                             _, _, hlr, _ = hr.shape
-                            
                             if hlr // 2 == llr:
-                                xz = torch.cat((lrx, z), dim=-2)
+                                xz = torch.cat([torch.cat((lr_input[0], deb[0]), dim=-2),
+                                                torch.cat((lr[0], gmsd[0]), dim=-2)], dim=-1)
                             elif hlr // 4 == llr:
-                                xz = torch.cat((lrx, z, z, z), dim=-2)
-                            imsave([xz, sr[0], ulr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
+                                xz = torch.cat((lr[0], z, z, z), dim=-2)
+                            
+                            imsave([xz, sr[0], ulr[0], hr[0]], f'{result_dir}/{fname}.jpg')
                             
                             mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
                                                   torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)
