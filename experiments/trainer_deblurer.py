@@ -89,7 +89,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
         blurs[ksize] = {}
         for sigma in sigmas:
             blurs[ksize][sigma] = Blur(ksize=ksize, sigma=sigma).to(device)
-    noise_sigma = 0.3
+    noise_sigma = 0
     
     for epoch in range(epoch_start, epoch_start+num_epochs):
         
