@@ -83,9 +83,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
         hist[key] = []
 
     blurs = {}
-    for ksize in [3, 5, 7]:
+    ksizes = [3, 5, 7]
+    sigmas = [0.1, 0.2, 0.4, 0.8, 1.0]
+    for ksize in ksizes:
         blurs[ksize] = {}
-        for sigma in [0.4, 0.8, 1.0, 1.2, 1.6, 2.0]:
+        for sigma in sigmas:
             blurs[ksize][sigma] = Blur(ksize=ksize, sigma=sigma).to(device)
     noise_sigma = 0.3
     
@@ -104,7 +106,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         lr = lr.to(device)
                         # hr = hr.to(device)
                         
-                        blur = blurs[7][1.0]                        
+                        blur = blurs[max(ksizes)][max(sigmas)]                        
                         
                         lr_input = blur(lr)
                         lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma
@@ -145,8 +147,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # hr = hr.to(device)
                 
                 # prediction
-                ksize_ = random.choice([3, 5, 7])
-                sigma_ = random.choice([0.1, 0.2, 0.4, 0.8, 1.0])
+                ksize_ = random.choice(ksizes)
+                sigma_ = random.choice(sigmas)
                 blur = blurs[ksize_][sigma_]
                 
                 # dnd = random.choice(['blur', 'noise', 'blur_and_noise'])
@@ -230,7 +232,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             lr = lr.to(device)
                             # hr = hr.to(device)
 
-                            blur = blurs[7][1.0]
+                            blur = blurs[max(ksizes)][max(sigmas)]
                             lr_input = blur(lr)
                             lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma      
                             
