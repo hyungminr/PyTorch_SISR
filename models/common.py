@@ -260,3 +260,17 @@ class MSHF(torch.nn.Module):
         return self.act(fea)
         
         
+from torchvision.models import vgg16
+
+class VGG_Extractor(nn.Module):
+    def __init__(self):
+        super(VGG_Extractor, self).__init__()
+        self.vgg = vgg16(pretrained=True)
+        
+    def forward(self, x):
+        out_x = list()
+        for vgg_layer in list(self.vgg.features.children()):
+            if type(vgg_layer) == torch.nn.modules.pooling.MaxPool2d:
+                out_x.append(x)
+            x = vgg_layer.forward(x)
+        return out_x
