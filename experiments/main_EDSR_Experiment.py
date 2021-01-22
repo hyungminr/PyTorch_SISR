@@ -166,6 +166,7 @@ elif scale_factor == 2:
 # import trainer_v20_gmsd_masked_loss as trainer
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v20_gmsd_masked_loss')
 
+"""
 import trainer_v21_high_freq as trainer
 
 from models.EDSR_high_freq import EDSR
@@ -181,7 +182,6 @@ elif scale_factor == 2:
 
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_high_freq')
 
-"""
 
 from models.EDSR_x1 import EDSR
 model = EDSR(scale=scale_factor)
@@ -189,3 +189,6 @@ import trainer_deblurer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_deblur', epoch_start=0, num_epochs=1000)
 
 """
+
+import trainer_v21_gmsd_soft_masked_loss as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_gmsd_soft_masked_loss')
