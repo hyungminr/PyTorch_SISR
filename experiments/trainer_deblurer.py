@@ -83,11 +83,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
         hist[key] = []
 
     blurs = {}
-    for ksize in [3, 5, 7, 9, 11, 13, 15, 17]:
+    for ksize in [3, 5, 7]:
         blurs[ksize] = {}
         for sigma in [0.4, 0.8, 1.0, 1.2, 1.6, 2.0]:
             blurs[ksize][sigma] = Blur(ksize=ksize, sigma=sigma).to(device)
-
+    noise_sigma = 0.3
+    
     for epoch in range(epoch_start, epoch_start+num_epochs):
         
         if epoch == 0:
@@ -103,9 +104,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         lr = lr.to(device)
                         # hr = hr.to(device)
                         
-                        blur = blurs[17][2.0]
+                        blur = blurs[7][1.0]                        
                         
                         lr_input = blur(lr)
+                        lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma
+                        
                         _, features = model(lr_input)
                         dr = features[0]
                         # sr = quantize(sr)
@@ -142,11 +145,19 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # hr = hr.to(device)
                 
                 # prediction
-                ksize_ = random.choice([3, 5, 7, 9, 11, 13, 15, 17])
-                sigma_ = random.choice([0.4, 0.8, 1.0, 1.2, 1.6, 2.0])
+                ksize_ = random.choice([3, 5, 7])
+                sigma_ = random.choice([0.1, 0.2, 0.4, 0.8, 1.0])
                 blur = blurs[ksize_][sigma_]
                 
-                lr_input = blur(lr)
+                # dnd = random.choice(['blur', 'noise', 'blur_and_noise'])
+                dnd = 'blur'
+                if dnd == 'blur':
+                    lr_input = blur(lr)
+                elif dnd == 'noise':
+                    lr_input = lr + torch.rand_like(lr, device=lr.device)*noise_sigma
+                else:
+                    lr_input = blur(lr)
+                    lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma                        
                 
                 _, features = model(lr_input)
                 dr = features[0]
@@ -219,8 +230,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             lr = lr.to(device)
                             # hr = hr.to(device)
 
-                            blur = blurs[17][2.0]
+                            blur = blurs[7][1.0]
                             lr_input = blur(lr)
+                            lr_input = lr_input + torch.rand_like(lr, device=lr.device)*noise_sigma      
                             
                             _, features = model(lr_input)
                             dr = features[0]
