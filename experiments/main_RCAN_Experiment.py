@@ -10,7 +10,7 @@ torch.manual_seed(0)
 from models.RCAN import RCAN
 model = RCAN()
 
-scale_factor = 2
+scale_factor = 4
 
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=16, height=192, width=192, scale_factor=4, augment=True)
