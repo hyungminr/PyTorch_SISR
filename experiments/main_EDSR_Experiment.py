@@ -183,18 +183,20 @@ elif scale_factor == 2:
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_high_freq')
 
 
-from models.EDSR_x1 import EDSR
-model = EDSR(scale=scale_factor)
-import trainer_deblurer as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_deblur', epoch_start=0, num_epochs=1000)
-
-
-"""
 import trainer_v21_gmsd_soft_masked_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_gmsd_soft_masked_loss')
 
-"""
 import trainer_v22_gmsd_soft_masked_loss_vgg_perceptual as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v22_gmsd_soft_masked_loss_vgg_perceptual')
 """
 
+
+from models.EDSR_x1 import EDSR
+model = EDSR(scale=scale_factor)
+# import trainer_deblurer as trainer
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_deblur', epoch_start=0, num_epochs=1000)
+pretrained = torch.load('./weights/2021.01.22/EDSR_x2_deblur/epoch_1000.pth')
+for n, p in model.named_parameters():
+    if 'tail' not in n: p.data.copy_(pretrained[n])    
+import trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v23_sr_with_pretrained_deblur')
