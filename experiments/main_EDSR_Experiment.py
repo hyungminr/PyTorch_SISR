@@ -172,10 +172,10 @@ from models.EDSR_high_freq import EDSR
 model = EDSR(scale=scale_factor)
 
 if scale_factor == 4:
-    train_loader = get_loader(mode='train', batch_size=4, height=768, width=768, scale_factor=4, augment=True)
+    train_loader = get_loader(mode='train', batch_size=1, height=768, width=768, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
 elif scale_factor == 2:
-    train_loader = get_loader(mode='train', batch_size=4, height=384, width=384, augment=True)
+    train_loader = get_loader(mode='train', batch_size=1, height=384, width=384, augment=True)
     test_loader = get_loader(mode='test')
 
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_high_freq')
