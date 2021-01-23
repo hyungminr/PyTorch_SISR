@@ -167,20 +167,7 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v19_
 import trainer_v20_gmsd_masked_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v20_gmsd_masked_loss')
 
-import trainer_v21_high_freq as trainer
 
-from models.EDSR_high_freq import EDSR
-scale_factor = 4
-model = EDSR(scale=scale_factor)
-
-if scale_factor == 4:
-    train_loader = get_loader(mode='train', batch_size=1, height=768, width=768, scale_factor=4, augment=True)
-    test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-elif scale_factor == 2:
-    train_loader = get_loader(mode='train', batch_size=1, height=384, width=384, augment=True)
-    test_loader = get_loader(mode='test')
-
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_high_freq')
 
 
 import trainer_v21_gmsd_soft_masked_loss as trainer
@@ -214,3 +201,18 @@ from models.EDSR_x1 import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_v26_nn_upsample as trainer
 trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v26_nn_upscaled')
+
+import trainer_v21_high_freq as trainer
+
+from models.EDSR_high_freq import EDSR
+scale_factor = 4
+model = EDSR(scale=scale_factor)
+
+if scale_factor == 4:
+    train_loader = get_loader(mode='train', batch_size=1, height=768, width=768, scale_factor=4, augment=True)
+    test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
+elif scale_factor == 2:
+    train_loader = get_loader(mode='train', batch_size=1, height=384, width=384, augment=True)
+    test_loader = get_loader(mode='test')
+
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_high_freq')
