@@ -70,7 +70,7 @@ trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_debl
 
 from models.RCAN_x1 import RCAN
 model = RCAN(scale=scale_factor)
-model.load_state_dict(torch.load('./weights/2021.01.22/RCAN_x{scale_factor}_deblur/epoch_1000.pth'))
+model.load_state_dict(torch.load(f'./weights/2021.01.22/RCAN_x{scale_factor}_deblur/epoch_1000.pth'))
 import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_deblur_then_sr', epoch_start=0, num_epochs=1000)
 
