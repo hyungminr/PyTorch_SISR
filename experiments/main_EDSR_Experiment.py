@@ -196,16 +196,17 @@ from models.EDSR_x1 import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_deblur_nn_upscaled as trainer
 trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v25_deblur_nn_upscaled')
-"""
+
 from models.EDSR_x1 import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_v26_nn_upsample as trainer
 trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v26_nn_upscaled')
+"""
 
 import trainer_v21_high_freq as trainer
 
 from models.EDSR_high_freq import EDSR
-scale_factor = 4
+scale_factor = 2
 model = EDSR(scale=scale_factor)
 
 if scale_factor == 4:
