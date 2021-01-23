@@ -10,7 +10,7 @@ torch.manual_seed(0)
 from models.RCAN import RCAN
 model = RCAN()
 
-scale_factor = 2
+scale_factor = 4
 
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=16, height=192, width=192, scale_factor=4, augment=True)
@@ -62,15 +62,22 @@ import trainer_denoise_and_deblur_and_sr as trainer
 trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_dnd_sr', epoch_start=0, num_epochs=1000)
 
 
-
 from models.RCAN_x1 import RCAN
 model = RCAN(scale=scale_factor)
 import trainer_deblurer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_deblur', epoch_start=0, num_epochs=1000)
 """
 
+from models.RCAN_x1 import RCAN
+model = RCAN(scale=scale_factor)
+model.load_state_dict(torch.load('./weights/2021.01.22/RCAN_x{scale_factor}_deblur/epoch_1000.pth'))
+import trainer as trainer
+trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_deblur_then_sr', epoch_start=0, num_epochs=1000)
 
+
+"""
 from models.RCAN_x1 import RCAN
 model = RCAN(scale=scale_factor)
 import trainer_v26_nn_upsample as trainer
 trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'RCAN_x{scale_factor}_v26_nn_upscaled')
+"""
