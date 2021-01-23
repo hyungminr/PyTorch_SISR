@@ -75,9 +75,8 @@ import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'RCAN_x{scale_factor}_deblur_then_sr', epoch_start=0, num_epochs=1000)
 
 
-"""
 from models.RCAN_x1 import RCAN
 model = RCAN(scale=scale_factor)
 import trainer_v26_nn_upsample as trainer
 trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'RCAN_x{scale_factor}_v26_nn_upscaled')
-"""
+
