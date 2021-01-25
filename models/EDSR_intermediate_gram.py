@@ -74,7 +74,7 @@ class EDSR(nn.Module):
         
         for block in self.body:
             x_deep.append(block(x_deep[-1]))
-            
+        
             # shallow + deep
             x_feature = x_deep[0] + x_deep[-1]
             
@@ -84,6 +84,6 @@ class EDSR(nn.Module):
             # meanshift (postprocess)
             out = self.add_mean(x_up)
         
-            outs.append(out)
+        outs.append(out)
         
         return outs, x_deep
