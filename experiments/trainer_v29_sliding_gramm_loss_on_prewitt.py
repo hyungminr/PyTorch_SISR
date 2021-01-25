@@ -178,7 +178,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 loss_gram = sliding_gramm_loss(srx, hrx) + sliding_gramm_loss(sry, hry)
                 
-                loss_tot = loss + loss_gram * 0.1
+                if loss_gram != 0:
+                    loss_gram_w = loss.item() / loss_gram.item() * 0.2
+                    loss_gram = loss_gram * loss_gram_w.detach()
+                loss_tot = loss + loss_gram
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
