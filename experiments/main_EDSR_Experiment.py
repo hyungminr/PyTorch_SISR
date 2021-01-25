@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 2
+scale_factor = 4
 
 model = EDSR(scale=scale_factor)
 
@@ -225,9 +225,13 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v27_
 
 import trainer_v28_sliding_gramm_loss_on_img as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v28_sliding_gramm_loss_on_img')
-"""
+
 
 from models.EDSR_intermediate_results import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_v29_inter_results as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v29_inter_results')
+"""
+
+import trainer_v29_sliding_gramm_loss_on_prewitt as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v29_sliding_gramm_loss_on_prewitt')
