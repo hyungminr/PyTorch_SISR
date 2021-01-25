@@ -180,7 +180,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 if loss_gram != 0:
                     loss_gram_w = loss.item() / loss_gram.item() * 0.2
-                    loss_gram = loss_gram * loss_gram_w.detach()
+                    loss_gram = loss_gram * loss_gram_w
                 loss_tot = loss + loss_gram
                 optim.zero_grad()
                 loss_tot.backward()
