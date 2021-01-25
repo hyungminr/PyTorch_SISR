@@ -65,7 +65,7 @@ class EDSR(nn.Module):
         layers = [nn.Linear(in_features=num_feats, out_features=num_feats, bias=True)]
         layers += [nn.ReLU(inplace=True)]
         layers += [nn.Linear(in_features=num_feats, out_features=4, bias=True)]
-        layers += [nn.Softmax()]
+        layers += [nn.Softmax(dim=1)]
         self.loss_weight = nn.Sequential(*layers)
         
     def forward(self, img):    
