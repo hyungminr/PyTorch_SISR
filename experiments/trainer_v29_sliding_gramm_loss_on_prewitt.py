@@ -60,10 +60,12 @@ def sliding_gramm_loss(sr, hr):
             
             if loss_patch.item() > 1.5:
                 loss_cnt += 1            
-                loss += criterion(gram_s, gram_h)
-            
-    return loss * (1 / loss_cnt)
-
+                loss += loss_patch
+    if loss_cnt > 0:
+        return loss * (1 / loss_cnt)
+    else:
+        return 0
+        
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
 def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True):
