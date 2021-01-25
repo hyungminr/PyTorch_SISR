@@ -46,8 +46,8 @@ def sliding_gramm_loss(sr, hr, model):
             s_patch = sr[:,:,h:h+window, w:w+window]
             h_patch = hr[:,:,h:h+window, w:w+window]
             
-            con_s = model.head.forward(ux_patch).view(B, 64, -1)
-            con_h = model.head.forward(y_patch).view(B, 64, -1)
+            con_s = model.head.forward(s_patch).view(B, 64, -1)
+            con_h = model.head.forward(h_patch).view(B, 64, -1)
             
             gram_s = con_s.bmm(con_s.transpose(1, 2))
             gram_h = con_h.bmm(con_h.transpose(1, 2))
