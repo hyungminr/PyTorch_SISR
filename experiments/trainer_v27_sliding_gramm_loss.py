@@ -38,7 +38,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
 def sliding_gramm_loss(sr, hr):
     loss = 0
     loss_cnt = 0
-    criterion = nn.L1Loss()
+    criterion = torch.nn.L1Loss()
     window = 17
     B, C, H, W = hr.shape
     for h in range(0,H-window,5):
