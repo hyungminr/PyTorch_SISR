@@ -35,7 +35,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
         msssims.append(msssim)
     return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
 
-def sliding_gramm_loss(sr, hr):
+def sliding_gramm_loss(sr, hr, model):
     loss = 0
     loss_cnt = 0
     criterion = torch.nn.L1Loss()
@@ -159,7 +159,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # training
                 loss = criterion(sr, hr)
-                loss_gram = sliding_gramm_loss(sr, hr)
+                loss_gram = sliding_gramm_loss(sr, hr, model)
                 loss_tot = loss + loss_gram
                 optim.zero_grad()
                 loss_tot.backward()
@@ -169,8 +169,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # training history 
                 elapsed_time = time.time() - start_time
                 elapsed = sec2time(elapsed_time)            
-                pfix['Step'] = f'{step+1}'
+                # pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
+                pfix['Loss Gram'] = f'{loss_gram.item():.4f}'
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)
