@@ -217,7 +217,11 @@ elif scale_factor == 2:
     test_loader = get_loader(mode='test')
 
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v21_high_freq')
-"""
+
 
 import trainer_v27_sliding_gramm_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v27_sliding_gramm_loss')
+"""
+
+import trainer_v28_sliding_gramm_loss_on_img as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v28_sliding_gramm_loss_on_img')
