@@ -189,7 +189,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 elapsed = sec2time(elapsed_time)            
                 # pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['Loss Gram'] = f'{loss_gram.item():.4f}'
+                if loss_gram != 0:
+                    pfix['Loss Gram'] = f'{loss_gram.item():.4f}'
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)
