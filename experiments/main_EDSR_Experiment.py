@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 4
+scale_factor = 2
 
 model = EDSR(scale=scale_factor)
 
