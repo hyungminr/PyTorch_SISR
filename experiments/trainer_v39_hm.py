@@ -42,7 +42,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True):
+def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -150,7 +150,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 psnr, ssim, msssim = evaluate(hr, sr_)
                         
                 
-                if psnr >= 38:
+                if psnr >= 40 - 2*scale:
                     soft_mask = True
                 else:
                     soft_mask = False
