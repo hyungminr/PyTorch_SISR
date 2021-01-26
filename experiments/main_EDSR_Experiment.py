@@ -244,7 +244,7 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_
 
 import trainer_v32_freqx3 as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v32_freqx3')
-"""
+
 
 from models.EDSR_x1 import EDSR
 scale_factor = 2
@@ -257,3 +257,8 @@ model = EDSR(scale=scale_factor)
 # trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v34_postprocess')
 import trainer_v35_postprocess as trainer
 trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v35_postprocess')
+"""
+
+from models.EDSR_xy import EDSR
+model = EDSR(scale=scale_factor)
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v31_xy')
