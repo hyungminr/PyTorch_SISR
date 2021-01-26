@@ -234,10 +234,13 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v29_
 
 import trainer_v29_sliding_gramm_loss_on_prewitt as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v29_sliding_gramm_loss_on_prewitt')
-"""
 
 
 from models.EDSR_multi_loss import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_v30_multi_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_multi_loss')
+"""
+
+import trainer_v31_freqx3 as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v31_freqx3')

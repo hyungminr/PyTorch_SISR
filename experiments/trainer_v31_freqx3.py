@@ -19,9 +19,6 @@ from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
 from models.common import MSHF
-from models.common import Prewitt
-from models.common import Edge
-from models.Morphology import Opening
 
 from utils import pass_filter
 
@@ -41,38 +38,6 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
 
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
-
-def sliding_gramm_loss(sr, hr):
-    loss = 0
-    loss_cnt = 0
-    criterion = torch.nn.L1Loss()
-    window = 17
-    B, C, H, W = hr.shape
-    for h in range(0,H-window,5):
-        for w in range(0,W-window,5):
-            s_patch = sr[:,:,h:h+window, w:w+window]
-            h_patch = hr[:,:,h:h+window, w:w+window]
-            
-            # con_s = model.head.forward(s_patch).view(B, 64, -1)
-            # con_h = model.head.forward(h_patch).view(B, 64, -1)
-                        
-            con_s = s_patch.reshape(B, C, -1)
-            con_h = h_patch.reshape(B, C, -1)
-            
-            gram_s = con_s.bmm(con_s.transpose(1, 2))
-            gram_h = con_h.bmm(con_h.transpose(1, 2))
-            
-            loss_patch = criterion(gram_s, gram_h)
-            
-            # if loss_patch.item() > 1.5:
-            loss_cnt += 1            
-            loss += loss_patch
-            
-    if loss_cnt > 0:
-        return loss * (1 / loss_cnt)
-    else:
-        return 0
-
 
 def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True):
 
@@ -104,12 +69,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     mshf = MSHF(3, 3).to(device)
-    opening = Opening().to(device)
 
-    ED = Edge().to(device)
-    Prewitt_x = Prewitt('x').to(device)
-    Prewitt_y = Prewitt('y').to(device)
-    
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -170,36 +130,20 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
                 hr = hr.to(device)
-                                
+                lr_hf, lr_lf = pass_filter(lr)
+                hr_hf, hr_lf = pass_filter(hr)
+                
                 # prediction
                 sr, deep = model(lr)
+                sr_hf, _ = model(lr_hf)
+                sr_lf, _ = model(lr_lf)
+                
+                gmsd = GMSD(hr, sr)
                 
                 # training
-                
-                loss_weight = deep[-1]
-                
-                srx = Prewitt_x(sr)
-                sry = Prewitt_y(sr)
-                hrx = Prewitt_x(hr)
-                hry = Prewitt_y(hr)
-                
-                loss_gram = sliding_gramm_loss(srx, hrx) + sliding_gramm_loss(sry, hry)
-                
-                
-                gmsd = GMSD(hr, sr)                
-                for _ in range(2): gmsd = opening(gmsd)
-                gmsd = gmsd / gmsd.max()
-                gmsd = gmsd.detach()                
-                loss_gmsd_weighted = criterion(sr * gmsd, hr * gmsd)
-                
-                
-                hr_edge = ED(hr)
-                sr_edge = ED(sr)                
-                loss_edge = criterion(sr_edge, hr_edge)         
-                                
                 loss = criterion(sr, hr)
-                
-                
+                loss += 0.5*criterion(sr_hf, hr_hf)
+                loss += 0.2*criterion(sr_lf, hr_lf)
                 loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
