@@ -9,7 +9,7 @@ import torch
 torch.manual_seed(0)
 
 
-scale_factor = 4
+scale_factor = 2
 
 model = EDSR(scale=scale_factor)
 
@@ -240,7 +240,16 @@ from models.EDSR_multi_loss import EDSR
 model = EDSR(scale=scale_factor)
 import trainer_v30_multi_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_multi_loss')
-"""
+
 
 import trainer_v32_freqx3 as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v32_freqx3')
+"""
+
+from models.EDSR_x1 import EDSR
+scale_factor = 2
+train_loader = get_loader(mode='train', batch_size=16, augment=True)
+test_loader = get_loader(mode='test')
+model = EDSR(scale=scale_factor)
+import trainer_v33_postprocess as trainer
+trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v33_postprocess')
