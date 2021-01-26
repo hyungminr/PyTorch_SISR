@@ -7,6 +7,29 @@ import torchvision.transforms as T
 from PIL import Image
 import cv2
 
+def fea2img(x):
+    trans = [T.ToTensor()]
+    trans = T.Compose(trans)
+    t2img = T.ToPILImage()
+    x = x[0].cpu()
+    d, h, w = x.shape
+    # x = (x - x.min()) / (x.max() - x.min())
+    if d == 3:
+        x = (x - x.min()) / (x.max() - x.min())
+        return t2img(x)
+    elif d == 64:
+        xxx = []
+        for i in range(8):
+            xx = []
+            for j in range(8):
+                xz = x[8*i+j]
+                xz = (xz - xz.min()) / (xz.max() - xz.min())
+                xx.append(xz)
+            xx = torch.cat(xx, dim=-1)
+            xxx.append(xx)
+        x = torch.cat(xxx, dim=-2)
+        return t2img(x)
+        
 def get_gpu_memory():
     _output_to_list = lambda x: x.decode('ascii').split('\n')[:-1]
     ACCEPTABLE_AVAILABLE_MEMORY = 1024
