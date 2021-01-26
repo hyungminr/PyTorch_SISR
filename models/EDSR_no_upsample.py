@@ -45,17 +45,16 @@ class EDSR(nn.Module):
         layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
-        blocks = [ResBlock(num_feats=num_feats) for _ in range(8)]
-        blocks = [ResBlock(num_feats=num_feats, kernel=1, padding=0) for _ in range(8)]
-        blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=1, padding=0, bias=bias)]
+        blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
+        blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.body = nn.ModuleList(blocks)
         
         layers = []
         if (scale & (scale - 1)) == 0: # Is scale = 2^n?
             for _ in range(int(math.log(scale, 2))):
-                # zlayers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats*4, kernel_size=kernel, padding=padding, bias=bias)]
+                layers += [nn.Conv2d(in_channels=num_feats, out_channels=3*4, kernel_size=kernel, padding=padding, bias=bias)]
                 layers += [nn.PixelShuffle(2)]
-        layers += [nn.Conv2d(in_channels=num_feats//4, out_channels=3, kernel_size=1, padding=0, bias=bias)]
+        # layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
         self.tail = nn.Sequential(*layers)
         
         self.add_mean = MeanShift(mode='add')
