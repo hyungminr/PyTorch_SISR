@@ -185,7 +185,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)
-                psnr_, _, _ = evaluate(hr, deep[0])
                         
                 psnrs.append(psnr)
                 ssims.append(ssim)
