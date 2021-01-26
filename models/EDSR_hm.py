@@ -177,6 +177,7 @@ class EDSR(nn.Module):
     
         # meanshift (preprocess)
         x = self.sub_mean(img)
+        x_mshf = self.mshf_tail(self.mshf(x))
         x = torch.cat((x, img_hf), dim=1)
         
         # shallow feature
@@ -187,7 +188,6 @@ class EDSR(nn.Module):
         for block in self.body:
             x_deep.append(block(x_deep[-1]))
         
-        x_mshf = self.mshf_tail(self.mshf(x))
         x_deep.append(x_mshf)
         
         # shallow + deep
