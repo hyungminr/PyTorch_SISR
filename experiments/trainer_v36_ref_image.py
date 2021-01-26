@@ -37,7 +37,7 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
         msssims.append(msssim)    
     return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
 
-def get_ref_images(ref_images, size=256):
+def get_ref_images(ref_images, size=224):
     img = np.random.choice(ref_images)
     tensor = torch.load(img)
     _, _, w, h = tensor.shape
