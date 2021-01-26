@@ -261,4 +261,5 @@ trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_
 
 from models.EDSR_xy import EDSR
 model = EDSR(scale=scale_factor)
+import trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v31_xy')
