@@ -142,7 +142,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # training
                 loss = criterion(sr, hr)
                 loss_x2 = criterion(sr_x2, hr_x2)
-                loss_tot = loss + loss_x2 * 0.25
+                loss_x1 = criterion(deep[0], hr)
+                loss_tot = loss + loss_x2 * 0.25 + loss_x1 * 0.25
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -154,6 +155,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
                 pfix['Loss x2'] = f'{loss_x2.item():.4f}'
+                pfix['Loss x1'] = f'{loss_x1.item():.4f}'
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)
