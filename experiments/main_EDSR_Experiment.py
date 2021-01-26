@@ -290,7 +290,7 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_
 """
 
 from models.EDSR_hm import EDSR
-scale_factor = 2
+scale_factor = 4
 model = EDSR(scale=scale_factor)
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=16, height=512, width=512, scale_factor=4, augment=True)
