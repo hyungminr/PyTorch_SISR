@@ -41,15 +41,15 @@ class ResBlock_xy(nn.Module):
         super().__init__()
         
         layers = []
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(kernel, 1), padding=(padding, 1), bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(kernel, 1), padding=(padding, 0), bias=bias)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(kernel, 1), padding=(padding, 1), bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(kernel, 1), padding=(padding, 0), bias=bias)]
         self.conv_x = nn.Sequential(*layers)
         
         layers = []
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(1, kernel), padding=(1, padding), bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(1, kernel), padding=(0, padding), bias=bias)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(1, kernel), padding=(1, padding), bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=(1, kernel), padding=(0, padding), bias=bias)]
         self.conv_y = nn.Sequential(*layers)
         
         layers = []
