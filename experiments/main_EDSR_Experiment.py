@@ -242,5 +242,5 @@ import trainer_v30_multi_loss as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_multi_loss')
 """
 
-import trainer_v31_freqx3 as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v31_freqx3')
+import trainer_v32_freqx3 as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v32_freqx3')
