@@ -253,5 +253,7 @@ test_loader = get_loader(mode='test')
 model = EDSR(scale=scale_factor)
 # import trainer_v33_postprocess as trainer
 # trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v33_postprocess')
-import trainer_v34_postprocess as trainer
-trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v34_postprocess')
+# import trainer_v34_postprocess as trainer
+# trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v34_postprocess')
+import trainer_v35_postprocess as trainer
+trainer.train(model, train_loader, test_loader, scale=scale_factor, mode=f'EDSR_x{scale_factor}_v35_postprocess')
