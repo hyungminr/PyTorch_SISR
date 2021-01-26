@@ -157,6 +157,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 sr = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr)
+                psnr_, _, _ = evaluate(hr, deep[0])
                         
                 psnrs.append(psnr)
                 ssims.append(ssim)
@@ -167,6 +168,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 msssim_mean = np.array(msssims).mean()
 
                 pfix['PSNR'] = f'{psnr:.2f}'
+                pfix['PSNR_post'] = f'{psnr_:.2f}'
                 pfix['SSIM'] = f'{ssim:.4f}'
                 # pfix['MSSSIM'] = f'{msssim:.4f}'
                 pfix['PSNR_mean'] = f'{psnr_mean:.2f}'
