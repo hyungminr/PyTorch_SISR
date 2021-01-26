@@ -275,9 +275,15 @@ from models.EDSR_x1conv import EDSR
 model = EDSR(scale=scale_factor)
 import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v37_x1conv')
-"""
+
 
 from models.EDSR_no_upsample import EDSR
 model = EDSR(scale=scale_factor)
 import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v38_no_upsample')
+"""
+
+from models.EDSR_mshf_connection import EDSR
+model = EDSR(scale=scale_factor)
+import trainer as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_mshf_connection')
