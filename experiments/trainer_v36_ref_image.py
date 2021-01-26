@@ -145,16 +145,16 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             for lr, hr, _ in pbar:
                 ########################
                 # regularize
-                lr, hr = get_ref_images(ref_images)
+                lr_, hr_ = get_ref_images(ref_images)
                 
-                lr = lr.to(device)
-                hr = hr.to(device)
+                lr_ = lr_.to(device)
+                hr_ = hr_.to(device)
                 
                 # regularize prediction
-                sr, _ = model(lr)
+                sr_, _ = model(lr_)
                 
                 # regularize training
-                loss = criterion(sr, hr)
+                loss = criterion(sr_, hr_)
                 loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
