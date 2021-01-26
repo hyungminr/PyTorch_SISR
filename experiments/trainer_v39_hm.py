@@ -72,6 +72,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     opening = Opening().to(device)
+    blur = Blur().to(device)
     mshf = MSHF(3, 3).to(device)
 
     start_time = time.time()
@@ -157,8 +158,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 
                 if soft_mask:
-                    
-                    for _ in range(10): gmsd = opening(gmsd)
+                    with torch.no_grad():
+                        for _ in range(10): gmsd = opening(gmsd)
                     gmask = gmsd / gmsd.max()
                     gmask = (gmask > 0.2) * 1.0
                     gmask = blur(gmask)                
