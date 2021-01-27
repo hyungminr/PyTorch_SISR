@@ -10,6 +10,7 @@ import pandas as pd
 import shutil
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+import cv2
 
 from collections import OrderedDict
 from utils import imsave, sec2time, get_gpu_memory
