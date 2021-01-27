@@ -182,9 +182,9 @@ class FeatureAtt2(nn.Module):
     def forward(self, x, y):
         px_std, px_avg = torch.std_mean(self.att0(x), dim=(2, 3), keepdim=True)
         py_std, py_avg = torch.std_mean(self.att0(x), dim=(2, 3), keepdim=True)
-        px = self.std_avg(torch.cat([px_std, px_avg], dim=2))
-        py = self.std_avg(torch.cat([py_std, py_avg], dim=2))
-        pf = torch.cat([py, px, py, px], dim=1)
+        px = self.std_avg(torch.cat([px_std, px_avg], dim=1))
+        py = self.std_avg(torch.cat([py_std, py_avg], dim=1))
+        pf = torch.cat([py, px, py, px], dim=2)
         pw = self.conv(pf) * 2
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
