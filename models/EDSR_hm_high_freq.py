@@ -183,19 +183,23 @@ class FeatureAtt(nn.Module):
 class FeatureAtt5(nn.Module):
     def __init__(self):
         super().__init__()
-        self.att = ChannAtt()
+        self.att0 = ChannAtt()
+        self.att1 = ChannAtt()
+        self.att2 = ChannAtt()
+        self.att3 = ChannAtt()
+        self.att4 = ChannAtt()
         self.pool = nn.AdaptiveAvgPool2d(1)
-        layers = [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 1), padding=0, bias=True)]
+        layers = [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(5, 1), padding=0, bias=True)]
         layers += [nn.Softmax(dim=2)]
         self.conv = nn.Sequential(*layers)
         
     def forward(self, x, y, z, a, b):
-        px = self.pool(self.att(x))
-        py = self.pool(self.att(y))
-        pz = self.pool(self.att(z))
-        pa = self.pool(self.att(a))
-        pb = self.pool(self.att(b))
-        pf = torch.cat([pz, px, py, pz, px], dim=2)
+        px = self.pool(self.att0(x))
+        py = self.pool(self.att1(y))
+        pz = self.pool(self.att2(z))
+        pa = self.pool(self.att3(a))
+        pb = self.pool(self.att4(b))
+        pf = torch.cat([pa, pb, px, py, pz, pa, pb, px, py], dim=2)
         pw = self.conv(pf)
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
@@ -210,9 +214,17 @@ class EDSR(nn.Module):
         layers += [nn.Conv2d(in_channels=6, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
+        layers = []
+        layers += [nn.Conv2d(in_channels=6, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        self.head2 = nn.Sequential(*layers)
+        
         blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
         blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.body = nn.ModuleList(blocks)
+        
+        blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
+        blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        self.body2 = nn.ModuleList(blocks)
         
         layers = []
         if (scale & (scale - 1)) == 0: # Is scale = 2^n?
@@ -228,16 +240,14 @@ class EDSR(nn.Module):
         layers = [nn.Conv2d(in_channels=12, out_channels=num_feats, kernel_size=1, padding=0, bias=bias)]
         self.mshf_tail = nn.Sequential(*layers)
         
-        self.feature_attention = FeatureAtt()
+        self.feature_attention = FeatureAtt5()
         
     def forward(self, img, img_hf):    
     
         # meanshift (preprocess)
         x = self.sub_mean(img)
         x_mshf = self.mshf_tail(self.mshf(x))
-        
-        x = torch.cat((x, img_hf), dim=1)
-        
+                
         # shallow feature
         x_shallow = self.head(x)
         
@@ -246,11 +256,20 @@ class EDSR(nn.Module):
         for block in self.body:
             x_deep.append(block(x_deep[-1]))
         
-        x_deep.append(x_mshf)
+        # meanshift (preprocess)
+        x_hf = self.sub_mean(img_hf)
+        # shallow feature
+        x_shallow_hf = self.head2(x_hf)
+        
+        # deep feature
+        x_deep_hf = [x_shallow_hf]
+        for block in self.body2:
+            x_deep_hf.append(block(x_deep_hf[-1]))
+        
         
         # shallow + deep
         # x_feature = x_deep[0] + x_deep[-2] + x_deep[-1]
-        x_feature = self.feature_attention(x_deep[0], x_deep[-2], x_deep[-1])
+        x_feature = self.feature_attention(x_deep[0], x_deep[-1], x_mshf, x_deep_hf[0], x_deep_hf[-1])
         
         # upscale
         x_up = self.tail(x_feature)
