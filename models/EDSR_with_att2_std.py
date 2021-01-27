@@ -161,7 +161,7 @@ class ChannAtt(nn.Module):
         
     def forward(self, x_fea):
         x_std, x_avg = torch.std_mean(x_fea, dim=(2, 3), keepdim=True)
-        x = self.std_avg(torch.cat([x_std, x_avg], dim=2))
+        x = self.std_avg(torch.cat([x_std, x_avg], dim=1))
         x_cha = self.channel_att(x)
         x_att = x_fea * x_cha
         return x_att
@@ -184,7 +184,7 @@ class FeatureAtt2(nn.Module):
         py_std, py_avg = torch.std_mean(self.att0(x), dim=(2, 3), keepdim=True)
         px = self.std_avg(torch.cat([px_std, px_avg], dim=2))
         py = self.std_avg(torch.cat([py_std, py_avg], dim=2))
-        pf = torch.cat([py, px, py, px], dim=2)
+        pf = torch.cat([py, px, py, px], dim=1)
         pw = self.conv(pf) * 2
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
