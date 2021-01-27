@@ -201,7 +201,7 @@ class FeatureAtt5(nn.Module):
         pb = self.pool(self.att4(b))
         pf = torch.cat([pa, pb, px, py, pz, pa, pb, px, py], dim=2)
         pw = self.conv(pf)
-        fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
+        fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2), a.unsqueeze(2), b.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
                 
 class EDSR(nn.Module):
