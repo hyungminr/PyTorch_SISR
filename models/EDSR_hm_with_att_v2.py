@@ -150,9 +150,9 @@ class ChannAtt(nn.Module):
         
         layers = []
         layers += [nn.AdaptiveAvgPool2d(1)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels= 4, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=64, out_channels= 4, kernel_size=3, padding=1, bias=True)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels= 4, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels= 4, out_channels=64, kernel_size=3, padding=1, bias=True)]
         layers += [nn.Sigmoid()]
         self.channel_att = nn.Sequential(*layers)
         
