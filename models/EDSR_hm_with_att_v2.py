@@ -165,16 +165,18 @@ class ChannAtt(nn.Module):
 class FeatureAtt(nn.Module):
     def __init__(self):
         super().__init__()
-        self.att = ChannAtt()
+        self.att0 = ChannAtt()
+        self.att1 = ChannAtt()
+        self.att2 = ChannAtt()
         self.pool = nn.AdaptiveAvgPool2d(1)
         layers = [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 1), padding=0, bias=True)]
         layers += [nn.Softmax(dim=2)]
         self.conv = nn.Sequential(*layers)
         
     def forward(self, x, y, z):
-        px = self.pool(self.att(x))
-        py = self.pool(self.att(y))
-        pz = self.pool(self.att(z))
+        px = self.pool(self.att0(x))
+        py = self.pool(self.att1(y))
+        pz = self.pool(self.att2(z))
         pf = torch.cat([pz, px, py, pz, px], dim=2)
         pw = self.conv(pf)
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)

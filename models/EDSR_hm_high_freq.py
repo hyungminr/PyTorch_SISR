@@ -150,9 +150,9 @@ class ChannAtt(nn.Module):
         
         layers = []
         layers += [nn.AdaptiveAvgPool2d(1)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels= 4, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=64, out_channels= 4, kernel_size=3, padding=1, bias=True)]
         layers += [nn.ReLU(inplace=True)]
-        layers += [nn.Conv2d(in_channels= 4, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels= 4, out_channels=64, kernel_size=3, padding=1, bias=True)]
         layers += [nn.Sigmoid()]
         self.channel_att = nn.Sequential(*layers)
         
@@ -175,6 +175,26 @@ class FeatureAtt(nn.Module):
         px = self.pool(self.att(x))
         py = self.pool(self.att(y))
         pz = self.pool(self.att(z))
+        pf = torch.cat([pz, px, py, pz, px], dim=2)
+        pw = self.conv(pf)
+        fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
+        return torch.sum(fea_map, dim=2)
+                
+class FeatureAtt5(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.att = ChannAtt()
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        layers = [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 1), padding=0, bias=True)]
+        layers += [nn.Softmax(dim=2)]
+        self.conv = nn.Sequential(*layers)
+        
+    def forward(self, x, y, z, a, b):
+        px = self.pool(self.att(x))
+        py = self.pool(self.att(y))
+        pz = self.pool(self.att(z))
+        pa = self.pool(self.att(a))
+        pb = self.pool(self.att(b))
         pf = torch.cat([pz, px, py, pz, px], dim=2)
         pw = self.conv(pf)
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
@@ -215,6 +235,7 @@ class EDSR(nn.Module):
         # meanshift (preprocess)
         x = self.sub_mean(img)
         x_mshf = self.mshf_tail(self.mshf(x))
+        
         x = torch.cat((x, img_hf), dim=1)
         
         # shallow feature
