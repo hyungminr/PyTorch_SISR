@@ -296,6 +296,7 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v43_
 """
 
 import trainer_v39_hm as trainer
+from utils.data_loader_freq import get_loader
 
 scale_factor = 2
 if scale_factor == 4:

@@ -110,8 +110,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     psnrs = []
                     ssims = []
                     msssims = []
-                    for lr, hr, fname in pbar_test:
-                        lr_hf = high_pass_filter_hard_kernel(lr)
+                    for lr, lr_hf, hr, fname in pbar_test:
                         lr = lr.to(device)
                         hr = hr.to(device)
                         lr_hf = lr_hf.to(device)
@@ -147,8 +146,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             ssims = []
             msssims = []
             losses = []
-            for lr, hr, _ in pbar:
-                lr_hf = high_pass_filter_hard_kernel(lr)
+            for lr, lr_hf, hr, _ in pbar:
                 lr = lr.to(device)
                 hr = hr.to(device)
                 lr_hf = lr_hf.to(device)
@@ -248,11 +246,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         psnrs = []
                         ssims = []
                         msssims = []
-                        for lr, hr, fname in pbar_test:
+                        for lr, lr_hf, hr, fname in pbar_test:
                             
                             fname = fname[0].split('/')[-1].split('.pt')[0]
                             
-                            lr_hf = high_pass_filter_hard_kernel(lr)
                             lr = lr.to(device)
                             hr = hr.to(device)
                             lr_hf = lr_hf.to(device)
