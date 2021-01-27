@@ -187,7 +187,7 @@ class EDSR(nn.Module):
                 
         self.sub_mean = MeanShift(mode='sub')
         layers = []
-        layers += [nn.Conv2d(in_channels=6, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        layers += [nn.Conv2d(in_channels=3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
         self.head = nn.Sequential(*layers)
         
         blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
