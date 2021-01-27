@@ -15,12 +15,12 @@ t = T.Compose(transform)
 
 
 data_dir = []
-# data_dir.append('./data/DIV2K/bin/DIV2K_train_HR/*pt')
-# data_dir.append('./data/DIV2K/bin/DIV2K_valid_HR/*pt')
-data_dir.append('./data/DIV2K/bin/DIV2K_train_LR_bicubic/X2/*pt')
-data_dir.append('./data/DIV2K/bin/DIV2K_valid_LR_bicubic/X2/*pt')
-data_dir.append('./data/DIV2K/bin/DIV2K_train_LR_bicubic/X4/*pt')
-data_dir.append('./data/DIV2K/bin/DIV2K_valid_LR_bicubic/X4/*pt')
+data_dir.append('./data/DIV2K/bin/DIV2K_train_HR/*pt')
+data_dir.append('./data/DIV2K/bin/DIV2K_valid_HR/*pt')
+#data_dir.append('./data/DIV2K/bin/DIV2K_train_LR_bicubic/X2/*pt')
+#data_dir.append('./data/DIV2K/bin/DIV2K_valid_LR_bicubic/X2/*pt')
+#data_dir.append('./data/DIV2K/bin/DIV2K_train_LR_bicubic/X4/*pt')
+#data_dir.append('./data/DIV2K/bin/DIV2K_valid_LR_bicubic/X4/*pt')
 
 for d in data_dir:
     images = glob.glob(d)
