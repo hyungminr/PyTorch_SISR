@@ -38,7 +38,14 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
         msssims.append(msssim)    
     return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
 
-
+def get_hf_kernel(mode='high'):
+    kernel1d = cv2.getGaussianKernel(ksize=w, sigma=w * sigma / 100)
+    kernel2d = np.outer(kernel1d, kernel1d.transpose())
+    kernel2d = kernel2d / kernel2d.max()
+    kernel2d = cv2.resize(kernel2d, dsize=(w, h))
+    kernel2d = (kernel2d > 0.2) * 1.
+    if mode == 'high': kernel2d = 1-kernel2d
+    return kernel2d
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
@@ -88,6 +95,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
         hist[key] = []
 
     soft_mask = False
+    
+    hf_kernel = get_hf_kernel(mode='high')
 
     for epoch in range(epoch_start, epoch_start+num_epochs):
 
@@ -101,10 +110,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     ssims = []
                     msssims = []
                     for lr, hr, fname in pbar_test:
+                        lr_hf = high_pass_filter_hard_kernel(lr, kernel=hf_kernel)
                         lr = lr.to(device)
                         hr = hr.to(device)
+                        lr_hf = lr_hf.to(device)
                                         
-                        lr_hf = high_pass_filter_hard_kernel(lr)
                         
                         sr, deep = model(lr, lr_hf)
                         
@@ -137,9 +147,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             msssims = []
             losses = []
             for lr, hr, _ in pbar:
+                lr_hf = high_pass_filter_hard_kernel(lr, kernel=hf_kernel)
                 lr = lr.to(device)
                 hr = hr.to(device)
-                lr_hf = high_pass_filter_hard_kernel(lr)
+                lr_hf = lr_hr.to(device)
                                 
                 # prediction
                 sr, deep = model(lr, lr_hf)
@@ -240,9 +251,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             fname = fname[0].split('/')[-1].split('.pt')[0]
                             
+                            lr_hf = high_pass_filter_hard_kernel(lr, kernel=hf_kernel)
                             lr = lr.to(device)
                             hr = hr.to(device)
-                            lr_hf = high_pass_filter_hard_kernel(lr)
+                            lr_hf = lr_hr.to(device)
                             
                             sr, deep = model(lr, lr_hf)
                             

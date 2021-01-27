@@ -289,6 +289,12 @@ import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_mshf_connection')
 
 
+from models.EDSR_with_att2 import EDSR
+model = EDSR(scale=scale_factor)
+import trainer as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v43_base_att2')
+"""
+
 import trainer_v39_hm as trainer
 
 scale_factor = 2
@@ -314,9 +320,5 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v41_
 # from models.EDSR_hm_high_freq import EDSR
 # model = EDSR(scale=scale_factor)
 # trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v42_high_freq', epoch_start=0, num_epochs=10000, scale=scale_factor)
-"""
 
-from models.EDSR_with_att2 import EDSR
-model = EDSR(scale=scale_factor)
-import trainer as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v43_base_att2')
+

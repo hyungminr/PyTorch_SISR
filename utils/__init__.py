@@ -219,7 +219,7 @@ def pass_filter(tensor_input, sigma=20):
         
     return tensor_high / 255, tensor_low / 255
     
-def high_pass_filter_hard_kernel(tensor_input, sigma=2, mode='high'):
+def high_pass_filter_hard_kernel(tensor_input, sigma=2, mode='high', kernel = None):
     tensor_output = torch.zeros_like(tensor_input)
     tensor_input = torch.transpose(tensor_input, 2, 3)
     tensor_input = torch.transpose(tensor_input, 1, 3)
@@ -238,12 +238,16 @@ def high_pass_filter_hard_kernel(tensor_input, sigma=2, mode='high'):
             # ham = np.hamming(h)[:,None] # 1D hamming
             # ham2d = np.sqrt(np.dot(ham, ham.T)) ** r # expand to 2D hamming
             
-            kernel1d = cv2.getGaussianKernel(ksize=w, sigma=w * sigma / 100)
-            kernel2d = np.outer(kernel1d, kernel1d.transpose())
-            kernel2d = kernel2d / kernel2d.max()
-            kernel2d = cv2.resize(kernel2d, dsize=(w, h))
-            kernel2d = (kernel2d > 0.2) * 1.
-            if mode == 'high': kernel2d = 1-kernel2d
+            if kernel is None:
+                
+                kernel1d = cv2.getGaussianKernel(ksize=w, sigma=w * sigma / 100)
+                kernel2d = np.outer(kernel1d, kernel1d.transpose())
+                kernel2d = kernel2d / kernel2d.max()
+                kernel2d = cv2.resize(kernel2d, dsize=(w, h))
+                kernel2d = (kernel2d > 0.2) * 1.
+                if mode == 'high': kernel2d = 1-kernel2d
+            else:
+                kernel2d = kernel
             
             f = cv2.dft(grey.astype(np.float32), flags=cv2.DFT_COMPLEX_OUTPUT)
             f_shifted = np.fft.fftshift(f)
