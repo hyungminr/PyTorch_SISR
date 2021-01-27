@@ -15,21 +15,19 @@ t = T.Compose(transform)
 
 
 data_dir = []
-# data_dir.append('./data/DIV2K/DIV2K_train_HR/*png')
-# data_dir.append('./data/DIV2K/DIV2K_valid_HR/*png')
-data_dir.append('./data/DIV2K/DIV2K_train_LR_bicubic/X2/*png')
-data_dir.append('./data/DIV2K/DIV2K_valid_LR_bicubic/X2/*png')
-data_dir.append('./data/DIV2K/DIV2K_train_LR_bicubic/X4/*png')
-data_dir.append('./data/DIV2K/DIV2K_valid_LR_bicubic/X4/*png')
+# data_dir.append('./data/DIV2K/bin/DIV2K_train_HR/*pt')
+# data_dir.append('./data/DIV2K/bin/DIV2K_valid_HR/*pt')
+data_dir.append('./data/DIV2K/bin/DIV2K_train_LR_bicubic/X2/*pt')
+data_dir.append('./data/DIV2K/bin/DIV2K_valid_LR_bicubic/X2/*pt')
+data_dir.append('./data/DIV2K/bin/DIV2K_train_LR_bicubic/X4/*pt')
+data_dir.append('./data/DIV2K/bin/DIV2K_valid_LR_bicubic/X4/*pt')
 
 for d in data_dir:
     images = glob.glob(d)
     for iname in tqdm(images):
-        img = Image.open(iname)
-        tensor = t(img)
+        tensor = torch.load(iname)
         tensor = high_pass_filter_hard_kernel(tensor.unsqueeze(0))
         tensor = tensor.squeeze(0)
-        rname = iname.replace('/DIV2K/', '/DIV2K/bin/hfreq/')
-        rname = rname.replace('.png', '.pt')
+        rname = iname.replace('/DIV2K/bin/', '/DIV2K/bin/hfreq/')
         os.makedirs('/'.join(rname.split('/')[:-1]), exist_ok=True)
         torch.save(tensor, rname)
