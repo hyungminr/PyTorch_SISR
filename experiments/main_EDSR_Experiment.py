@@ -319,4 +319,4 @@ trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v41_
 from models.EDSR_with_att2 import EDSR
 model = EDSR(scale=scale_factor)
 import trainer as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_mshf_connection')
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v43_base_att2')
