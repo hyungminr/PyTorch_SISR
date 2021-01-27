@@ -151,7 +151,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 lr_hf = high_pass_filter_hard_kernel(lr)
                 lr = lr.to(device)
                 hr = hr.to(device)
-                lr_hf = lr_hr.to(device)
+                lr_hf = lr_hf.to(device)
                                 
                 # prediction
                 sr, deep = model(lr, lr_hf)
@@ -255,7 +255,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             lr_hf = high_pass_filter_hard_kernel(lr)
                             lr = lr.to(device)
                             hr = hr.to(device)
-                            lr_hf = lr_hr.to(device)
+                            lr_hf = lr_hf.to(device)
                             
                             sr, deep = model(lr, lr_hf)
                             
