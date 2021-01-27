@@ -8,27 +8,27 @@ from PIL import Image
 import cv2
 
 def fea2img(x):
+    pad = torch.nn.ConstantPad2d(1, 1)
     trans = [T.ToTensor()]
     trans = T.Compose(trans)
     t2img = T.ToPILImage()
     x = x[0].cpu()
     d, h, w = x.shape
-    # x = (x - x.min()) / (x.max() - x.min())
-    if d == 3:
-        x = (x - x.min()) / (x.max() - x.min())
-        return t2img(x)
-    elif d == 64:
-        xxx = []
-        for i in range(8):
-            xx = []
-            for j in range(8):
-                xz = x[8*i+j]
-                xz = (xz - xz.min()) / (xz.max() - xz.min())
-                xx.append(xz)
-            xx = torch.cat(xx, dim=-1)
-            xxx.append(xx)
-        x = torch.cat(xxx, dim=-2)
-        return t2img(x)
+    if d == 12: row, col = 2, 6
+    elif d == 64: row, col = 8, 8
+    else: row, col = 1, d
+    xxx = []
+    for i in range(row):
+        xx = []
+        for j in range(col):
+            xz = x[col*i+j]
+            xz = (xz - xz.min()) / (xz.max() - xz.min())
+            xz = pad(xz.unsqueeze(0).unsqueeze(0)).squeeze(0).squeeze(0)
+            xx.append(xz)
+        xx = torch.cat(xx, dim=-1)
+        xxx.append(xx)
+    x = torch.cat(xxx, dim=-2)
+    return t2img(x)
         
 def get_gpu_memory():
     _output_to_list = lambda x: x.decode('ascii').split('\n')[:-1]
@@ -51,7 +51,7 @@ def sec2time(sec, n_msec=0):
     
 def imshow(tensor, resize=None, visualize=True, filename=None):
     if type(tensor) is list:
-        pad = torch.nn.ConstantPad2d(2, 1)
+        pad = torch.nn.ConstantPad2d(1, 1)
         for i, t in enumerate(tensor):
             tensor[i] = pad(t)
             if len(tensor[i].shape) == 4:
@@ -68,9 +68,8 @@ def imshow(tensor, resize=None, visualize=True, filename=None):
         img.save(filename)
     if visualize:
         display(img)
-        return        
-    else:
-        return img
+        return
+    return img
         
 def imsave(tensor, filename, resize=None):
     imshow(tensor, resize=resize, visualize=False, filename=filename)
@@ -220,7 +219,7 @@ def pass_filter(tensor_input, sigma=20):
         
     return tensor_high / 255, tensor_low / 255
     
-def high_pass_filter_hard_kernel(tensor_input, sigma=2):
+def high_pass_filter_hard_kernel(tensor_input, sigma=2, mode='high'):
     tensor_output = torch.zeros_like(tensor_input)
     tensor_input = torch.transpose(tensor_input, 2, 3)
     tensor_input = torch.transpose(tensor_input, 1, 3)
@@ -244,7 +243,7 @@ def high_pass_filter_hard_kernel(tensor_input, sigma=2):
             kernel2d = kernel2d / kernel2d.max()
             kernel2d = cv2.resize(kernel2d, dsize=(w, h))
             kernel2d = (kernel2d > 0.2) * 1.
-            kernel2d = 1-kernel2d
+            if mode == 'high': kernel2d = 1-kernel2d
             
             f = cv2.dft(grey.astype(np.float32), flags=cv2.DFT_COMPLEX_OUTPUT)
             f_shifted = np.fft.fftshift(f)

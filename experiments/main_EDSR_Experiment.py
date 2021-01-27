@@ -289,18 +289,24 @@ import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v30_mshf_connection')
 """
 
-from models.EDSR_hm import EDSR
+import trainer_v39_hm as trainer
+
 scale_factor = 2
-model = EDSR(scale=scale_factor)
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=16, height=512, width=512, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
 elif scale_factor == 2:
     train_loader = get_loader(mode='train', batch_size=16, height=256, width=256,augment=True)
     test_loader = get_loader(mode='test')
-import trainer_v39_hm as trainer
-trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v39_hm', epoch_start=0, num_epochs=10000, scale=scale_factor)
+    
+# from models.EDSR_hm import EDSR
+# model = EDSR(scale=scale_factor)
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v39_hm', epoch_start=0, num_epochs=10000, scale=scale_factor)
 
-#from models.EDSR_hm_with_att import EDSR
-#model = EDSR(scale=scale_factor)
-#trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v40_hm_att', epoch_start=0, num_epochs=10000, scale=scale_factor)
+# from models.EDSR_hm_with_att import EDSR
+# model = EDSR(scale=scale_factor)
+# trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v40_hm_att', epoch_start=0, num_epochs=10000, scale=scale_factor)
+
+from models.EDSR_hm_with_att_v2 import EDSR
+model = EDSR(scale=scale_factor)
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v41_hm_att_v2', epoch_start=0, num_epochs=10000, scale=scale_factor)
