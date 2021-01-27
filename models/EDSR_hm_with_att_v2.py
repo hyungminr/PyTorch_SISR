@@ -178,7 +178,7 @@ class FeatureAtt(nn.Module):
         py = self.pool(self.att1(y))
         pz = self.pool(self.att2(z))
         pf = torch.cat([pz, px, py, pz, px], dim=2)
-        pw = self.conv(pf)
+        pw = self.conv(pf) * 3
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
                 
