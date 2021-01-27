@@ -329,4 +329,9 @@ model = EDSR(scale=scale_factor)
 import trainer as trainer
 trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v44_base_att2_std')
 
+from models.EDSR_with_att2_std2 import EDSR
+model = EDSR(scale=scale_factor)
+import trainer as trainer
+trainer.train(model, train_loader, test_loader, mode=f'EDSR_x{scale_factor}_v45_base_att2_std2')
+
 
