@@ -97,7 +97,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     soft_mask = False
     
-    hf_kernel = get_hf_kernel(mode='high')
+    # hf_kernel = get_hf_kernel(mode='high')
 
     for epoch in range(epoch_start, epoch_start+num_epochs):
 
