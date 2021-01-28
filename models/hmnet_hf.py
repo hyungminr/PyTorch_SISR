@@ -285,6 +285,34 @@ class FeatureAtt5(nn.Module):
         pw = self.conv(pf) * 5
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2), a.unsqueeze(2), b.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
+        
+class FeatureAtt7(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.att0 = ChannAtt()
+        self.att1 = ChannAtt()
+        self.att2 = ChannAtt()
+        self.att3 = ChannAtt()
+        self.att4 = ChannAtt()
+        self.att5 = ChannAtt()
+        self.att6 = ChannAtt()
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        layers = [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(7, 1), padding=0, bias=True)]
+        layers += [nn.Softmax(dim=2)]
+        self.conv = nn.Sequential(*layers)
+        
+    def forward(self, x, y, z, a, b, c, d):
+        px = self.pool(self.att0(x))
+        py = self.pool(self.att1(y))
+        pz = self.pool(self.att2(z))
+        pa = self.pool(self.att3(a))
+        pb = self.pool(self.att4(b))
+        pc = self.pool(self.att5(c))
+        pd = self.pool(self.att6(d))
+        pf = torch.cat([pb, pc, pd, px, py, pz, pa, pb, pc, pd, px, py, pz], dim=2)
+        pw = self.conv(pf) * 7
+        fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2), a.unsqueeze(2), b.unsqueeze(2), c.unsqueeze(2), d.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
+        return torch.sum(fea_map, dim=2)
                 
 class hmnet(nn.Module):
     """  """
@@ -352,9 +380,9 @@ class hmnet(nn.Module):
         layers += [nn.Conv2d(in_channels=12, out_channels=num_feats, kernel_size=1, padding=0, bias=bias)]
         self.mshf_tail = nn.ModuleList(layers)
         
-        self.feaAtt_x1 = FeatureAtt3()
-        self.feaAtt_x2 = FeatureAtt4()
-        self.feaAtt_x4 = FeatureAtt4()
+        self.feaAtt_x1 = FeatureAtt5()
+        self.feaAtt_x2 = FeatureAtt7()
+        self.feaAtt_x4 = FeatureAtt7()
         
     def forward(self, img, img_hf):    
 

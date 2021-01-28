@@ -117,12 +117,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     psnrs = []
                     ssims = []
                     msssims = []
-                    for lr, lr_hf, hr, fname in pbar_test:
+                    for lr, lr_hf, hr, hr_hf, fname in pbar_test:
                         lr = lr.to(device)
                         hr = hr.to(device)
                         lr_hf = lr_hf.to(device)
                         
-                        sr, _, _, _, _, _ = model(lr)
+                        sr, _, _, _, _, _ = model(lr, lr_hf)
                         
                         sr = quantize(sr)
                         
@@ -152,17 +152,21 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             ssims = []
             msssims = []
             losses = []
-            for lr, lr_hf, hr, _ in pbar:
+            for lr, lr_hf, hr, hr_hf, _ in pbar:
             
                 lr = lr.to(device)
                 hr = hr.to(device)
                 lr_hf = lr_hf.to(device)
+                hr_hf = hr_hf.to(device)
                        
                 hrx1 = downx4_bicubic(hr)
                 hrx2 = downx2_bicubic(hr)
+                       
+                hrx1_hf = downx4_bicubic(hr_hf)
+                hrx2_hf = downx2_bicubic(hr_hf)
                 
                 # prediction
-                sr, srx2, srx1 = model(lr)
+                sr, srx2, srx1, fr, frx2, frx1 = model(lr, lr_hf)
                 
                 gmsd = GMSD(hr, sr)
                 
@@ -191,13 +195,23 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     loss = criterion(sr * gmask, hr * gmask)
                     lossx2 = criterion(srx2 * gmaskx1, hrx2 * gmaskx2)
                     lossx1 = criterion(srx1 * gmaskx1, hrx1 * gmaskx1)
+                    
+                    loss_hf = criterion(fr * gmask, hr_hf * gmask)
+                    lossx2_hf = criterion(frx2 * gmaskx1, hrx2_hf * gmaskx2)
+                    lossx1_hf = criterion(frx1 * gmaskx1, hrx1_hf * gmaskx1)
+                    
                 else:
                     loss = criterion(sr, hr)
                     lossx2 = criterion(srx2, hrx2)
-                    lossx1 = criterion(srx1, hrx1) 
+                    lossx1 = criterion(srx1, hrx1)
+                    
+                    loss_hf = criterion(fr, hr_hf)
+                    lossx2_hf = criterion(frx2, hrx2_hf)
+                    lossx1_hf = criterion(frx1, hrx1_hf)
                 
                 # training
                 loss_tot = loss + 0.25 * lossx2 + 0.125 * lossx1
+                loss_tot += (loss_hf + 0.25 * lossx2_hf + 0.125 * lossx1_hf) * 0.2
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -261,7 +275,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         psnrs = []
                         ssims = []
                         msssims = []
-                        for lr, hr, fname in pbar_test:
+                        for lr, lr_hf, hr, hr_hf, fname in pbar_test:
                             
                             fname = fname[0].split('/')[-1].split('.pt')[0]
                             
@@ -269,7 +283,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr = hr.to(device)
                             lr_hf = lr_hf.to(device)
                             
-                            sr, _, _ = model(lr)
+                            sr, _, _, _, _, _ = model(lr, lr_hf)
                             
                             mshf_hr = mshf(hr)
                             mshf_sr = mshf(sr)
