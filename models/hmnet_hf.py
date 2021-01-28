@@ -339,9 +339,9 @@ class hmnet(nn.Module):
         blocks += [RG(num_RCAB=32, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
         self.bodies = nn.ModuleList(blocks)
         
-        blocks  = [RG(num_RCAB= 1, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
-        blocks += [RG(num_RCAB= 4, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
-        blocks += [RG(num_RCAB=16, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
+        blocks  = [RG(num_RCAB=2, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
+        blocks += [RG(num_RCAB=4, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
+        blocks += [RG(num_RCAB=8, num_feats=num_feats, kernel=kernel, padding=padding, bias=bias)]
         self.bodies_hf = nn.ModuleList(blocks)
                 
         layers  = [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias, stride=2)]
