@@ -11,7 +11,7 @@ torch.manual_seed(0)
 
 scale_factor = 4
 
-model = EDSR(scale=scale_factor)
+model = hmnet(scale=scale_factor)
 
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=16, height=192, width=192, scale_factor=4, augment=True)
