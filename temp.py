@@ -2,7 +2,7 @@ import os
 import shutil
 import glob
 
-binD = glob.glob('./data/benchmark/REDS/bin/train/train_sharp/*/*.pt')
+binD = glob.glob('./data/benchmark/REDS/bin/train/train_blur_bicubic/*/*/*.pt')
 binE = glob.glob('./data/benchmark/REDS/bin_E/train/train_sharp/*/*.pt')
 
 from tqdm import tqdm
