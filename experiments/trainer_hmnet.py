@@ -27,6 +27,10 @@ from models.Morphology import Opening
 from utils import pass_filter
 from utils import high_pass_filter_hard_kernel
 
+import warnings
+import the_module_that_warns
+warnings.simplefilter("ignore", UserWarning)
+
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
     psnrs, ssims, msssims = [], [], []
