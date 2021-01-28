@@ -87,8 +87,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     blur = Blur().to(device)
     mshf = MSHF(3, 3).to(device)
     
-    downx2_bicubic = nn.Upsample(scale_factor=1/2, mode='bicubic', align_corners=False, recompute_scale_factor=False)
-    downx4_bicubic = nn.Upsample(scale_factor=1/4, mode='bicubic', align_corners=False, recompute_scale_factor=False)
+    downx2_bicubic = nn.Upsample(scale_factor=1/2, mode='bicubic', align_corners=False)
+    downx4_bicubic = nn.Upsample(scale_factor=1/4, mode='bicubic', align_corners=False)
         
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
