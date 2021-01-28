@@ -12,7 +12,7 @@ transform.append(T.ToTensor())
 t = T.Compose(transform)
 
 data_dir = []
-data_dir.append('./data/benchmark/REDS/train/train_sharp/*/*.png')
+# data_dir.append('./data/benchmark/REDS/train/train_sharp/*/*.png')
 data_dir.append('./data/benchmark/REDS/train/train_blur_bicubic/X4/*/*.png')
 data_dir.append('./data/benchmark/REDS/val/val_sharp/*/*.png')
 data_dir.append('./data/benchmark/REDS/val/val_blur_bicubic/X4/*/*.png')

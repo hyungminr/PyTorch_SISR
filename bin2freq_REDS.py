@@ -24,9 +24,10 @@ data_dir.append('./data/benchmark/REDS/bin/test/test_blur_bicubic/X4/*/*.pt')
 for d in data_dir:
     images = glob.glob(d)
     for iname in tqdm(images):
+        rname = iname.replace('/bin/', '/bin/hfreq/')
+        if os.path.exists(rname): continue
         tensor = torch.load(iname)
         tensor = high_pass_filter_hard_kernel(tensor.unsqueeze(0))
         tensor = tensor.squeeze(0)
-        rname = iname.replace('/bin/', '/bin/hfreq/')
         os.makedirs('/'.join(rname.split('/')[:-1]), exist_ok=True)
         torch.save(tensor, rname)
