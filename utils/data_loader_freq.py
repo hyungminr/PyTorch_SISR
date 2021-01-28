@@ -5,6 +5,7 @@ import math
 import random
 import torch
 import torchvision.transforms as T
+from utils import evaluate
 
 class dataset(torch.utils.data.Dataset):
     """ Load HR / LR pair """
@@ -19,6 +20,7 @@ class dataset(torch.utils.data.Dataset):
         self.augment = augment
         self.files = self.find_files()
         self.scale_factor = scale_factor
+        self.up = torch.nn.Upsample(scale_factor=scale_factor, mode='bicubic', align_corners=False)
     
     def find_files(self):
         return glob.glob(f'{self.root_dir}/*.pt')
@@ -46,10 +48,26 @@ class dataset(torch.utils.data.Dataset):
         if self.height > 0 and self.width > 0:
             
             crop = self.get_crop_bbox(input_tensor)
-            input_tensor = self.crop_image(input_tensor, crop, mode='lr')
-            input_hf_tensor = self.crop_image(input_hf_tensor, crop, mode='lr')
-            output_tensor = self.crop_image(output_tensor, crop, mode='hr')
+            input_tensor_cropped = self.crop_image(input_tensor, crop, mode='lr')
+            input_hf_tensor_cropped = self.crop_image(input_hf_tensor, crop, mode='lr')
+            output_tensor_cropped = self.crop_image(output_tensor, crop, mode='hr')
             
+            if self.augment:
+                psnr, ssim, _ = evaluate(self.up(input_tensor_cropped.unsqueeze(0)), output_tensor_cropped.unsqueeze(0))
+                cnt = 0
+                while psnr > 40 or ssim > 0.95:
+                    cnt += 1
+                    crop = self.get_crop_bbox(input_tensor)
+                    input_tensor_cropped = self.crop_image(input_tensor, crop, mode='lr')
+                    input_hf_tensor_cropped = self.crop_image(input_hf_tensor, crop, mode='lr')
+                    output_tensor_cropped = self.crop_image(output_tensor, crop, mode='hr')
+                    psnr, ssim, _ = evaluate(self.up(input_tensor_cropped.unsqueeze(0)), output_tensor_cropped.unsqueeze(0))
+                    if cnt > 10: break
+                    
+            input_tensor = input_tensor_cropped
+            input_hf_tensor = input_hf_tensor_cropped
+            output_tensor = output_tensor_cropped
+                    
         if hflip:
             input_tensor= torch.tensor(input_tensor.numpy()[:,:,::-1].copy())
             input_hf_tensor= torch.tensor(input_hf_tensor.numpy()[:,:,::-1].copy())

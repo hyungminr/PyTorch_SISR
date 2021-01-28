@@ -6,6 +6,23 @@ import torch
 import torchvision.transforms as T
 from PIL import Image
 import cv2
+from utils.eval import ssim as get_ssim
+from utils.eval import ms_ssim as get_msssim
+from utils.eval import psnr as get_psnr
+
+def evaluate(hr: torch.tensor, sr: torch.tensor):
+    batch_size, _, h, w = hr.shape
+    psnrs, ssims, msssims = [], [], []
+    for b in range(batch_size):
+        psnrs.append(get_psnr(hr[b], sr[b]))
+        ssims.append(get_ssim(hr[b].unsqueeze(0), sr[b].unsqueeze(0)).item())
+        if h > 160 and w > 160:
+            msssim = get_msssim(hr[b].unsqueeze(0), sr[b].unsqueeze(0)).item()
+        else:
+            msssim = 0
+        msssims.append(msssim)    
+    return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
+
 
 def fea2img(x):
     pad = torch.nn.ConstantPad2d(1, 1)

@@ -82,7 +82,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     opening = Opening().to(device)
     blur = Blur().to(device)
     mshf = MSHF(3, 3).to(device)
-
+    
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
