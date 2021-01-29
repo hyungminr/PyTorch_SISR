@@ -11,10 +11,11 @@ import trainer_hmnet as trainer
 torch.manual_seed(0)
 scale_factor = 4
 model = hmnet(scale=scale_factor)
+model.load_state_dict(torch.load('./weights/2021.01.28/HMNET_x4_Baseline/epoch_0600.pth'))
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=16, height=192, width=192, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)    
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Baseline', epoch_start=0, num_epochs=3000, save_model_every=100)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Baseline', epoch_start=600, num_epochs=3000, save_model_every=100)
 
 
 from models.hmnet_hf import hmnet
