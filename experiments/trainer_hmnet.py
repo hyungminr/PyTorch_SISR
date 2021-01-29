@@ -186,7 +186,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     
                     # training
                     loss = criterion(sr * gmask, hr * gmask)
-                    lossx2 = criterion(srx2 * gmaskx1, hrx2 * gmaskx2)
+                    lossx2 = criterion(srx2 * gmaskx2, hrx2 * gmaskx2)
                     lossx1 = criterion(srx1 * gmaskx1, hrx1 * gmaskx1)
                 else:
                     loss = criterion(sr, hr)
