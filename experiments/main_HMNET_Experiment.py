@@ -83,4 +83,4 @@ model = hmnet(scale=scale_factor)
 if scale_factor == 4:
     train_loader = get_loader(mode='train', batch_size=1, height=192, width=192, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)    
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_batch_1', epoch_start=0, num_epochs=3000, save_model_every=100, test_model_every=1)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_batch_1', epoch_start=0, num_epochs=3000, save_model_every=100, test_model_every=1)
