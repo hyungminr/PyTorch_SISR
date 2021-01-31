@@ -18,6 +18,17 @@ data_dir.append('./data/benchmark/REDS/val/val_sharp/*/*.png')
 data_dir.append('./data/benchmark/REDS/val/val_blur_bicubic/X4/*/*.png')
 data_dir.append('./data/benchmark/REDS/test/test_blur_bicubic/X4/*/*.png')
 
+
+        
+iname = './data/benchmark/REDS/train/train_blur_bicubic/X4/069/00000006.png'                                                            
+rname = iname.replace('/REDS/', '/REDS/bin/')
+rname = rname.replace('.png', '.pt')
+img = Image.open(iname)
+tensor = t(img)
+os.makedirs('/'.join(rname.split('/')[:-1]), exist_ok=True)
+torch.save(tensor, rname)
+
+"""
 for d in data_dir:
     print(d)
     images = glob.glob(d)
@@ -30,4 +41,4 @@ for d in data_dir:
         os.makedirs('/'.join(rname.split('/')[:-1]), exist_ok=True)
         torch.save(tensor, rname)
 
-
+"""

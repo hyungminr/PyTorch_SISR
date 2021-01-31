@@ -35,4 +35,4 @@ for d in data_dir:
             torch.save(tensor, rname)
         except:
             failure_cases.append(iname)
-print(filure_cases)
+print(failure_cases)

@@ -10,20 +10,32 @@ from utils import evaluate
 class dataset(torch.utils.data.Dataset):
     """ Load HR / LR pair """
     def __init__(self, data='DIV2K', mode='test', height=96, width=96, scale_factor=2, augment=False):
-        if data == 'DIV2K':
+        self.data = data
+        
+        if self.data == 'DIV2K':
             if mode == 'test':
                 self.root_dir = './data/DIV2K/bin/DIV2K_valid_HR/'
             else:
                 self.root_dir = './data/DIV2K/bin/DIV2K_train_HR/'
+        elif self.data == 'REDS':
+            if mode == 'test':
+                self.root_dir = './data/benchmark/REDS/bin/val/val_sharp/'
+            else:
+                self.root_dir = './data/benchmark/REDS/bin/train/train_sharp/'
         self.height = 256 if mode=='test' else height
         self.width = 256 if mode=='test' else width
         self.augment = augment
         self.files = self.find_files()
-        self.scale_factor = scale_factor
-        self.up = torch.nn.Upsample(scale_factor=scale_factor, mode='bicubic', align_corners=False)
-    
+        self.scale_factor = 4 if self.data == 'REDS' else scale_factor
+        self.up = torch.nn.Upsample(scale_factor=self.scale_factor, mode='bicubic', align_corners=False)
+        
+        
+        
     def find_files(self):
-        return glob.glob(f'{self.root_dir}/*.pt')
+        if self.data == 'DIV2K':
+            return glob.glob(f'{self.root_dir}/*.pt')
+        elif self.data == 'REDS':
+            return glob.glob(f'{self.root_dir}/*/*.pt')
     
     def __len__(self):
         return len(self.files)
@@ -36,9 +48,11 @@ class dataset(torch.utils.data.Dataset):
         index = self.indexerror(index)
         
         output_name = self.files[index]
-        input_name = output_name.replace('HR', f'LR_bicubic/X{self.scale_factor}')
-        input_name = input_name.replace('.pt', f'x{self.scale_factor}.pt')
-               
+        if self.data == 'DIV2K':
+            input_name = output_name.replace('HR', f'LR_bicubic/X{self.scale_factor}')
+            input_name = input_name.replace('.pt', f'x{self.scale_factor}.pt')
+        elif self.data == 'REDS':
+            input_name = output_name.replace('_sharp/', f'_blur_bicubic/X4/')
         input_tensor = torch.load(input_name)
         output_tensor = torch.load(output_name)
         
@@ -111,4 +125,3 @@ def get_loader(data='DIV2K', mode='test', batch_size=1, num_workers=1, height=96
                                               num_workers=num_workers,
                                               prefetch_factor=10)   
     return data_loader
-
