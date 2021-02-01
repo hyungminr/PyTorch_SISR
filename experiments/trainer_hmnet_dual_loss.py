@@ -257,7 +257,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             losses = []
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
-                # hr = hr.to(device)
+                hr = hr.to(device)
                           
                 # hrx1 = downx4_bicubic(hr)
                 # hrx2 = downx2_bicubic(hr)
