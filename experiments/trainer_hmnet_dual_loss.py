@@ -248,6 +248,99 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             logger.add_scalar("PSNR/train", psnr_mean, epoch+1)
             logger.add_scalar("SSIM/train", ssim_mean, epoch+1)
             
+            
+
+        with tqdm(test_loader, desc=f'{mode} || Epoch {epoch+1}/{num_epochs}', position=0, leave=True) as pbar:
+            psnrs = []
+            ssims = []
+            msssims = []
+            losses = []
+            for lr, hr, _ in pbar:
+                lr = lr.to(device)
+                # hr = hr.to(device)
+                          
+                # hrx1 = downx4_bicubic(hr)
+                # hrx2 = downx2_bicubic(hr)
+                
+                # prediction
+                sr, srx2, srx1 = model(lr)
+                
+                gmsd = GMSD(hr, sr)
+                
+                sr_ = quantize(sr)      
+                psnr, ssim, msssim = evaluate(hr, sr_)
+                
+                if psnr >= 40 - 2*scale:
+                    soft_mask = True
+                else:
+                    soft_mask = False
+                
+                
+                if soft_mask:
+                    with torch.no_grad():
+                        for _ in range(10): gmsd = opening(gmsd)
+                    gmask = gmsd / gmsd.max()
+                    gmask = (gmask > 0.2) * 1.0
+                    gmask = blur(gmask)                
+                    gmask = (gmask - gmask.min()) / (gmask.max() - gmask.min() + 1e-7)
+                    gmask = (gmask + 0.25) / 1.25
+                    gmask = gmask.detach()
+                    gmaskx2 = downx2_bicubic(gmask)
+                    gmaskx1 = downx4_bicubic(gmask)
+                    
+                    # training
+                    # loss = criterion(sr * gmask, hr * gmask)
+                    # lossx2 = criterion(srx2 * gmaskx2, hrx2 * gmaskx2)
+                    lossx1 = criterion(srx1 * gmaskx1, lr * gmaskx1)
+                else:
+                    # loss = criterion(sr, hr)
+                    # lossx2 = criterion(srx2, hrx2)
+                    lossx1 = criterion(srx1, lr) 
+                
+                # training
+                loss_tot = 0.125 * lossx1 # + loss + 0.25 * lossx2
+                optim.zero_grad()
+                loss_tot.backward()
+                optim.step()
+                scheduler.step()
+                
+                # training history 
+                elapsed_time = time.time() - start_time
+                elapsed = sec2time(elapsed_time)            
+                pfix['Step'] = f'{step+1}'
+                pfix['Dual Loss'] = f'{lossx1.item():.4f}'
+                
+                psnrs.append(psnr)
+                ssims.append(ssim)
+                msssims.append(msssim)
+
+                psnr_mean = np.array(psnrs).mean()
+                ssim_mean = np.array(ssims).mean()
+                msssim_mean = np.array(msssims).mean()
+
+                pfix['PSNR'] = f'{psnr:.2f}'
+                pfix['SSIM'] = f'{ssim:.4f}'
+                # pfix['MSSSIM'] = f'{msssim:.4f}'
+                pfix['PSNR_mean'] = f'{psnr_mean:.2f}'
+                pfix['SSIM_mean'] = f'{ssim_mean:.4f}'
+                # pfix['MSSSIM_mean'] = f'{msssim_mean:.4f}'
+                           
+                free_gpu = get_gpu_memory()[0]
+                
+                pfix['free GPU'] = f'{free_gpu}MiB'
+                pfix['Elapsed'] = f'{elapsed}'
+                
+                pbar.set_postfix(pfix)
+                losses.append(loss.item())
+                
+                step += 1
+                
+            logger.add_scalar("Loss/train", np.array(losses).mean(), epoch+1)
+            logger.add_scalar("PSNR/train", psnr_mean, epoch+1)
+            logger.add_scalar("SSIM/train", ssim_mean, epoch+1)
+            
+            
+            
             if (epoch+1) % save_model_every == 0:
                 torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
                 
