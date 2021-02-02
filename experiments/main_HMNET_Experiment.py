@@ -178,7 +178,7 @@ batch_size = 1
 epoch_start = 0
 train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v2_batch_1', epoch_start=epoch_start, num_epochs=200, save_model_every=100, test_model_every=1)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v2_pool_loss_batch_1', epoch_start=epoch_start, num_epochs=200, save_model_every=100, test_model_every=1)
 
 for _ in range(10):
     batch_size *= 2
