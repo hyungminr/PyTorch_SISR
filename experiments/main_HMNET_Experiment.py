@@ -123,7 +123,7 @@ if scale_factor == 4:
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_High_Pass_Filter_lite', epoch_start=0, num_epochs=3000, save_model_every=10, test_model_every=1)
 
 
-
+"""
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
 import trainer_hmnet as trainer
@@ -135,8 +135,9 @@ epoch_start = 0
 train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
 # trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_batch_1', epoch_start=epoch_start, num_epochs=200, save_model_every=100, test_model_every=1)
-model.load_state_dict(torch.load('./weights/2021.02.01/HMNET_x4_Heavy_batch_1/epoch_0200.pth'))
+model.load_state_dict(torch.load('./weights/2021.02.01/HMNET_x4_Heavy_batch_1/epoch_0500.pth'))
 
+epoch_start = 300
 
 for _ in range(10):
     batch_size *= 2
@@ -146,7 +147,7 @@ for _ in range(10):
     trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_batch_{batch_size}', epoch_start=epoch_start, num_epochs=200, save_model_every=100, test_model_every=1)
     
 
-    
+"""
 from models.hmnet_v2 import hmnet
 from utils.data_loader import get_loader
 import trainer_hmnet as trainer
@@ -166,7 +167,7 @@ for _ in range(10):
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
     trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v2_batch_{batch_size}', epoch_start=epoch_start, num_epochs=200, save_model_every=100, test_model_every=1)
     
-"""
+
     
 from models.hmnet_v2 import hmnet
 from utils.data_loader import get_loader
@@ -186,3 +187,4 @@ for _ in range(10):
     train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
     trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v2_batch_{batch_size}', epoch_start=epoch_start, num_epochs=200, save_model_every=100, test_model_every=1)
+    """
