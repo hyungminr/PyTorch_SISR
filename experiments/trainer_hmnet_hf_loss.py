@@ -23,7 +23,7 @@ from models.common import GMSD_quality
 from models.common import MSHF
 from models.common import Blur
 from models.Morphology import Opening
-from models.high_pass_filter import high_pass_filter
+from models.high_pass_filter_lite import high_pass_filter
 
 from utils import pass_filter
 from utils import high_pass_filter_hard_kernel
