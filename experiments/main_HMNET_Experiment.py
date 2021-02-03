@@ -243,7 +243,7 @@ if scale_factor == 4:
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)    
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_High_Pass_Filter_lite_v2', epoch_start=0, num_epochs=3000, save_model_every=10, test_model_every=1)
 
-"""
+
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
 import trainer_hmnet as trainer
@@ -257,4 +257,27 @@ num_epochs = 2000
 train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_batch_{batch_size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
+"""
 
+
+from models.hmnet_v3 import hmnet
+from utils.data_loader import get_loader
+import trainer_hmnet_hf_loss_big as trainer
+torch.manual_seed(0)
+scale_factor = 4
+model = hmnet(scale=scale_factor)
+batch_size = 1
+epoch_start = 0
+num_epochs = 200
+train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v3_hf_loss_batch_{batch_size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
+
+while num_epochs == 200:
+    batch_size *= 2
+    epoch_start += 200
+    if batch_size == 32: num_epochs = 2000
+    train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+    test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
+    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v3_hf_loss_batch_{batch_size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
+    
