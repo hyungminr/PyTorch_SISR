@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 import torch
+import torch.nn as nn
 import datetime
 import time
 import numpy as np
@@ -10,6 +11,7 @@ import pandas as pd
 import shutil
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+import cv2
 
 from collections import OrderedDict
 from utils import imsave, sec2time, get_gpu_memory
@@ -19,8 +21,14 @@ from utils.eval import psnr as get_psnr
 
 from models.common import GMSD_quality
 from models.common import MSHF
+from models.common import Blur
+from models.Morphology import Opening
 
 from utils import pass_filter
+from utils import high_pass_filter_hard_kernel
+
+import warnings
+warnings.simplefilter("ignore", UserWarning)
 
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
@@ -35,11 +43,18 @@ def evaluate(hr: torch.tensor, sr: torch.tensor):
         msssims.append(msssim)    
     return np.array(psnrs).mean(), np.array(ssims).mean(), np.array(msssims).mean()
 
-
+def get_hf_kernel(mode='high', sigma=2):
+    kernel1d = cv2.getGaussianKernel(ksize=w, sigma=w * sigma / 100)
+    kernel2d = np.outer(kernel1d, kernel1d.transpose())
+    kernel2d = kernel2d / kernel2d.max()
+    kernel2d = cv2.resize(kernel2d, dsize=(w, h))
+    kernel2d = (kernel2d > 0.2) * 1.
+    if mode == 'high': kernel2d = 1-kernel2d
+    return kernel2d
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
+def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -62,15 +77,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     os.makedirs(logger_dir, exist_ok=True)
     logger = SummaryWriter(log_dir=logger_dir, flush_secs=2)
     model = model.to(device)
-
-    params = list(model.parameters())
+    postmodel = postmodel.to(device)
+    
+    params = list(postmodel.parameters())
     optim = torch.optim.Adam(params, lr=1e-4)
     scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=1000, gamma= 0.99)
     criterion = torch.nn.L1Loss()
-    GMSD = GMSD_quality().to(device)
-    mshf = MSHF(3, 3).to(device)
-    up_bicubic = torch.nn.Upsample(scale_factor=2, mode='bicubic', align_corners=False)
-    
+            
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -83,10 +96,14 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     for key in ['epoch', 'psnr', 'ssim', 'ms-ssim']:
         hist[key] = []
 
+    soft_mask = False
+    
+    # hf_kernel = get_hf_kernel(mode='high')
+
     for epoch in range(epoch_start, epoch_start+num_epochs):
 
         if epoch == 0:
-            torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
+            torch.save(postmodel.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
             
         if epoch == 0:
             with torch.no_grad():
@@ -97,8 +114,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     for lr, hr, fname in pbar_test:
                         lr = lr.to(device)
                         hr = hr.to(device)
-                                                
-                        sr, deep = model(lr)
+                        
+                        sr, _, _ = model(lr)
                         
                         sr = quantize(sr)
                         
@@ -112,9 +129,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         ssim_mean = np.array(ssims).mean()
                         msssim_mean = np.array(msssims).mean()
 
-                        pfix_test['psnr'] = f'{psnr:.4f}'
-                        pfix_test['ssim'] = f'{ssim:.4f}'
-                        pfix_test['msssim'] = f'{msssim:.4f}'
                         pfix_test['psnr_mean'] = f'{psnr_mean:.4f}'
                         pfix_test['ssim_mean'] = f'{ssim_mean:.4f}'
                         pfix_test['msssim_mean'] = f'{msssim_mean:.4f}'
@@ -131,19 +145,45 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
                 hr = hr.to(device)
-                hr_x2 = up_bicubic(hr)
+                          
+                hrx1 = downx4_bicubic(hr)
+                hrx2 = downx2_bicubic(hr)
                 
                 # prediction
-                sr, deep_m = model(lr)
-                sr_x2, deep = model(sr)
-                                
+                sr, _, _ = model(lr)
+                
+                sr = postmodel(sr)
+                
                 gmsd = GMSD(hr, sr)
                 
+                sr_ = quantize(sr)      
+                psnr, ssim, msssim = evaluate(hr, sr_)
+                
+                if psnr >= 40 - 2*scale:
+                    soft_mask = True
+                else:
+                    soft_mask = False
+                
+                
+                if soft_mask:
+                    with torch.no_grad():
+                        for _ in range(10): gmsd = opening(gmsd)
+                    gmask = gmsd / gmsd.max()
+                    gmask = (gmask > 0.2) * 1.0
+                    gmask = blur(gmask)                
+                    gmask = (gmask - gmask.min()) / (gmask.max() - gmask.min() + 1e-7)
+                    gmask = (gmask + 0.25) / 1.25
+                    gmask = gmask.detach()
+                    gmaskx2 = downx2_bicubic(gmask)
+                    gmaskx1 = downx4_bicubic(gmask)
+                    
+                    # training
+                    loss = criterion(sr * gmask, hr * gmask)
+                else:
+                    loss = criterion(sr, hr)
+                
                 # training
-                loss = criterion(sr, hr)
-                loss_x2 = criterion(sr_x2, hr_x2)
-                loss_x1 = criterion(deep[0], hr)
-                loss_tot = loss + loss_x2 * 0.25 + loss_x1 * 0.25
+                loss_tot = loss
                 optim.zero_grad()
                 loss_tot.backward()
                 optim.step()
@@ -154,13 +194,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 elapsed = sec2time(elapsed_time)            
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['Loss x2'] = f'{loss_x2.item():.4f}'
-                pfix['Loss x1'] = f'{loss_x1.item():.4f}'
                 
-                sr = quantize(sr)      
-                psnr, ssim, msssim = evaluate(hr, sr)
-                psnr_, _, _ = evaluate(hr, deep[0])
-                        
                 psnrs.append(psnr)
                 ssims.append(ssim)
                 msssims.append(msssim)
@@ -169,13 +203,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 ssim_mean = np.array(ssims).mean()
                 msssim_mean = np.array(msssims).mean()
 
-                pfix['PSNR'] = f'{psnr:.2f}'
-                pfix['PSNR_post'] = f'{psnr_:.2f}'
-                pfix['SSIM'] = f'{ssim:.4f}'
-                # pfix['MSSSIM'] = f'{msssim:.4f}'
                 pfix['PSNR_mean'] = f'{psnr_mean:.2f}'
                 pfix['SSIM_mean'] = f'{ssim_mean:.4f}'
-                # pfix['MSSSIM_mean'] = f'{msssim_mean:.4f}'
                            
                 free_gpu = get_gpu_memory()[0]
                 
@@ -219,7 +248,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             lr = lr.to(device)
                             hr = hr.to(device)
                             
-                            sr, deep_m = model(lr)
+                            sr, _, _ = model(lr)
+                            sr = postmodel(sr)
                             
                             mshf_hr = mshf(hr)
                             mshf_sr = mshf(sr)
@@ -246,6 +276,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             pfix_test['msssim_mean'] = f'{msssim_mean:.4f}'
                             
                             pbar_test.set_postfix(pfix_test)
+                            
                             
                             z = torch.zeros_like(lr[0])
                             _, _, llr, _ = lr.shape
