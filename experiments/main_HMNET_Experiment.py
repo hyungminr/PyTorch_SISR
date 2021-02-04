@@ -312,15 +312,15 @@ model = hmnet(scale=scale_factor)
 batch_size = 1
 epoch_start = 0
 num_epochs = 200
-train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+train_loader = get_loader(mode='train', batch_size=batch_size, height=512, width=512, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v4_residual_1dcnn_hf_loss_big_batch_{batch_size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v4_residual_1dcnn_hf_loss_big_batch_{batch_size}_big_img', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
 
 while num_epochs == 200:
     batch_size *= 2
     epoch_start += 200
-    if batch_size == 32: num_epochs = 2000
-    train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+    if batch_size == 16: num_epochs = 3000
+    train_loader = get_loader(mode='train', batch_size=batch_size, height=512, width=512, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v4_residual_1dcnn_hf_loss_big_batch_{batch_size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
+    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v4_residual_1dcnn_hf_loss_big_batch_{batch_size}_big_img', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1)
     
