@@ -196,7 +196,10 @@ class RG_h(nn.Module):
         
     def forward(self, x):
         num_RCAB = len(self.rcab) - 1
-        for i in range(num_RCAB):
+        
+        x_fea = self.rcab[0](x)
+        
+        for i in range(1, num_RCAB):
             x_fea = self.rcab[i](x) + x_fea
         
         return x + self.rcab[-1](x_fea)
