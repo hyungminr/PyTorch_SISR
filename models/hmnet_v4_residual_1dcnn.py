@@ -315,9 +315,9 @@ class hmnet(nn.Module):
         
         self.pixelShuffle = nn.PixelShuffle(2)
                 
-        layers  = [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
+        layers  = [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=1, padding=0, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=1, padding=0, bias=bias)]
+        layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=1, padding=0, bias=bias)]
         self.tails = nn.ModuleList(layers)
         
         self.add_mean = MeanShift(mode='add')
