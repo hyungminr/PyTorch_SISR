@@ -23,6 +23,7 @@ from models.common import GMSD_quality
 from models.common import MSHF
 from models.common import Blur
 from models.Morphology import Opening
+from models.srgan_discriminator import GeneratorLoss, TVLoss
 
 from utils import pass_filter
 from utils import high_pass_filter_hard_kernel
@@ -54,12 +55,13 @@ def get_hf_kernel(mode='high', sigma=2):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
+def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2, today=None):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    today = datetime.datetime.now().strftime('%Y.%m.%d')
+    if today is None:
+        today = datetime.datetime.now().strftime('%Y.%m.%d')
     
     result_dir = f'./results/{today}/{mode}'
     weight_dir = f'./weights/{today}/{mode}'
@@ -77,17 +79,28 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
     os.makedirs(logger_dir, exist_ok=True)
     logger = SummaryWriter(log_dir=logger_dir, flush_secs=2)
     model = model.to(device)
-    postmodel = postmodel.to(device)
-    
-    params = list(postmodel.parameters())
-    optim = torch.optim.Adam(params, lr=1e-4)
-    scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=1000, gamma= 0.99)
+    discriminator = discriminator.to(device)
+
+    params = list(model.parameters())
+    optimG = torch.optim.Adam(params, lr=1e-4)
+    schedulerG = torch.optim.lr_scheduler.StepLR(optimG, step_size=1000, gamma= 0.99)
+
+
+    params = list(discriminator.parameters())
+    optimD = torch.optim.Adam(params, lr=1e-4)
+    schedulerD = torch.optim.lr_scheduler.StepLR(optimD, step_size=1000, gamma= 0.99)
+
     criterion = torch.nn.L1Loss()
     GMSD = GMSD_quality().to(device)
     opening = Opening().to(device)
     blur = Blur().to(device)
     mshf = MSHF(3, 3).to(device)
+    gloss = GeneratorLoss().to(device)
+    tvloss = TVLoss().to(device)
     
+    downx2_bicubic = nn.Upsample(scale_factor=1/2, mode='bicubic', align_corners=False)
+    downx4_bicubic = nn.Upsample(scale_factor=1/4, mode='bicubic', align_corners=False)
+        
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
 
@@ -107,7 +120,7 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
     for epoch in range(epoch_start, epoch_start+num_epochs):
 
         if epoch == 0:
-            torch.save(postmodel.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
+            torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
             
         if epoch == 0:
             with torch.no_grad():
@@ -119,7 +132,7 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                         lr = lr.to(device)
                         hr = hr.to(device)
                         
-                        sr, _, _ = model(lr)
+                        sr, srx2, srx1 = model(lr)
                         
                         sr = quantize(sr)
                         
@@ -133,6 +146,9 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                         ssim_mean = np.array(ssims).mean()
                         msssim_mean = np.array(msssims).mean()
 
+                        pfix_test['psnr'] = f'{psnr:.4f}'
+                        pfix_test['ssim'] = f'{ssim:.4f}'
+                        pfix_test['msssim'] = f'{msssim:.4f}'
                         pfix_test['psnr_mean'] = f'{psnr_mean:.4f}'
                         pfix_test['ssim_mean'] = f'{ssim_mean:.4f}'
                         pfix_test['msssim_mean'] = f'{msssim_mean:.4f}'
@@ -150,18 +166,44 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                 lr = lr.to(device)
                 hr = hr.to(device)
                           
+                hrx1 = downx4_bicubic(hr)
+                hrx2 = downx2_bicubic(hr)
                 
-                # prediction
-                sr_in, _, _ = model(lr)
+                # (1) update D
+                
+                sr, srx2, srx1 = model(lr)
+                
+                discriminator.zero_grad()
+                real = discriminator(hr).mean()
+                fake = discriminator(sr).mean()
+                realx1 = discriminator(hrx1).mean()
+                fakex1 = discriminator(srx1).mean()
+                realx2 = discriminator(hrx2).mean()
+                fakex2 = discriminator(srx2).mean()
+                loss_d = 1 - real + fake
+                loss_d += 0.250 * (1 - realx2 + fakex2)
+                loss_d += 0.125 * (1 - realx1 + fakex1)
+                loss_d.backward(retain_graph=True)
+                
+                optimD.step()
+                schedulerD.step()
                 
                 
-                sr = postmodel(sr_in)
+                # (2) update G
+                model.zero_grad()
+                loss_g = gloss(fake, sr, hr)
+                loss_g += 0.250 * gloss(fakex2, srx2, hrx2)
+                loss_g += 0.125 * gloss(fakex1, srx1, hrx1)
+                loss_g.backward()
+                                
+                optimG.step()
+                schedulerG.step()
                 
                 gmsd = GMSD(hr, sr)
                 
                 sr_ = quantize(sr)      
                 psnr, ssim, msssim = evaluate(hr, sr_)
-                
+                """
                 if psnr >= 40 - 2*scale:
                     soft_mask = True
                 else:
@@ -177,24 +219,24 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                     gmask = (gmask - gmask.min()) / (gmask.max() - gmask.min() + 1e-7)
                     gmask = (gmask + 0.25) / 1.25
                     gmask = gmask.detach()
+                    gmaskx2 = downx2_bicubic(gmask)
+                    gmaskx1 = downx4_bicubic(gmask)
                     
                     # training
                     loss = criterion(sr * gmask, hr * gmask)
+                    lossx2 = criterion(srx2 * gmaskx2, hrx2 * gmaskx2)
+                    lossx1 = criterion(srx1 * gmaskx1, hrx1 * gmaskx1)
                 else:
                     loss = criterion(sr, hr)
-                
-                # training
-                loss_tot = loss
-                optim.zero_grad()
-                loss_tot.backward()
-                optim.step()
-                scheduler.step()
-                
+                    lossx2 = criterion(srx2, hrx2)
+                    lossx1 = criterion(srx1, hrx1) 
+                """
                 # training history 
                 elapsed_time = time.time() - start_time
                 elapsed = sec2time(elapsed_time)            
                 pfix['Step'] = f'{step+1}'
-                pfix['Loss'] = f'{loss.item():.4f}'
+                pfix['Loss G'] = f'{loss_g.item():.4f}'
+                pfix['Loss D'] = f'{loss_d.item():.4f}'
                 
                 psnrs.append(psnr)
                 ssims.append(ssim)
@@ -204,8 +246,12 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                 ssim_mean = np.array(ssims).mean()
                 msssim_mean = np.array(msssims).mean()
 
+                pfix['PSNR'] = f'{psnr:.2f}'
+                pfix['SSIM'] = f'{ssim:.4f}'
+                # pfix['MSSSIM'] = f'{msssim:.4f}'
                 pfix['PSNR_mean'] = f'{psnr_mean:.2f}'
                 pfix['SSIM_mean'] = f'{ssim_mean:.4f}'
+                # pfix['MSSSIM_mean'] = f'{msssim_mean:.4f}'
                            
                 free_gpu = get_gpu_memory()[0]
                 
@@ -217,7 +263,14 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                 
                 if step % save_image_every == 0:
                 
-                    imsave([sr_in[0], sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
+                    z = torch.zeros_like(lr[0])
+                    _, _, llr, _ = lr.shape
+                    _, _, hlr, _ = hr.shape
+                    if hlr // 2 == llr:
+                        xz = torch.cat((lr[0], z), dim=-2)
+                    elif hlr // 4 == llr:
+                        xz = torch.cat((lr[0], z, z, z), dim=-2)
+                    imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/epoch_{epoch+1}_iter_{step:05d}.jpg')
                     
                 step += 1
                 
@@ -226,7 +279,7 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
             logger.add_scalar("SSIM/train", ssim_mean, epoch+1)
             
             if (epoch+1) % save_model_every == 0:
-                torch.save(postmodel.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
+                torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
                 
             if (epoch+1) % test_model_every == 0:
                 
@@ -242,8 +295,7 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                             lr = lr.to(device)
                             hr = hr.to(device)
                             
-                            sr_in, _, _ = model(lr)
-                            sr = postmodel(sr_in)
+                            sr, _, _ = model(lr)
                             
                             mshf_hr = mshf(hr)
                             mshf_sr = mshf(sr)
@@ -273,7 +325,13 @@ def train(model, postmodel, train_loader, test_loader, mode='EDSR_Baseline', sav
                             
                             
                             z = torch.zeros_like(lr[0])
-                            imsave([sr_in[0], sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
+                            _, _, llr, _ = lr.shape
+                            _, _, hlr, _ = hr.shape
+                            if hlr // 2 == llr:
+                                xz = torch.cat((lr[0], z), dim=-2)
+                            elif hlr // 4 == llr:
+                                xz = torch.cat((lr[0], z, z, z), dim=-2)
+                            imsave([xz, sr[0], hr[0], gmsd[0]], f'{result_dir}/{fname}.jpg')
                             
                             mshf_vis = torch.cat((torch.cat([mshf_sr[:,i,:,:] for i in range(mshf_sr.shape[1])], dim=-1),
                                                   torch.cat([mshf_hr[:,i,:,:] for i in range(mshf_hr.shape[1])], dim=-1)), dim=-2)

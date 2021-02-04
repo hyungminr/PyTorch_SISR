@@ -291,26 +291,41 @@ class postprocessor(nn.Module):
     def __init__(self, args=None, num_RB=16, num_feats=64, scale=4, kernel=3, padding=1, bias=True):
         super().__init__()
                 
-                
-        layers = [] 
-        layers += [nn.Conv2d(in_channels=3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
-        layers += [nn.ReLU(inplace=True)]        
-        self.head0 = nn.Sequential(*layers)
+        self.sub_mean = MeanShift(mode='sub')
+        layers = []
+        layers += [nn.Conv2d(in_channels= 3, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        self.head = nn.Sequential(*layers)
         
-        layers = [] 
-        layers += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
-        layers += [nn.ReLU(inplace=True)]        
-        self.head1 = nn.Sequential(*layers)
+        blocks = [ResBlock(num_feats=num_feats) for _ in range(16)]
+        blocks += [nn.Conv2d(in_channels=num_feats, out_channels=num_feats, kernel_size=kernel, padding=padding, bias=bias)]
+        self.body = nn.ModuleList(blocks)
         
-        layers = [] 
+        layers = []
         layers += [nn.Conv2d(in_channels=num_feats, out_channels=3, kernel_size=kernel, padding=padding, bias=bias)]
-        layers += [nn.ReLU(inplace=True)]        
-        self.head2 = nn.Sequential(*layers)
+        self.tail = nn.Sequential(*layers)
         
+        self.add_mean = MeanShift(mode='add')
         
     def forward(self, img):    
-        x0 = self.head0(img)
-        x1 = self.head1(x0)
-        x2 = self.head2(x1)
+    
+        # meanshift (preprocess)
+        x = self.sub_mean(img)
         
-        return x2
+        # shallow feature
+        x_shallow = self.head(x)
+        
+        # deep feature
+        x_deep = [x_shallow]
+        for block in self.body:
+            x_deep.append(block(x_deep[-1]))
+        
+        # shallow + deep
+        x_feature = x_deep[0] + x_deep[-1]
+        
+        # upscale
+        x_up = self.tail(x_feature)
+        
+        # meanshift (postprocess)
+        out = self.add_mean(x_up)
+        
+        return out
