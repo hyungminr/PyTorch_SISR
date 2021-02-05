@@ -192,14 +192,14 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                 
                 real = discriminator(hr).mean()
                 fake = discriminator(sr.detach()).mean()
-                realx1 = discriminator(hrx1).mean()
-                fakex1 = discriminator(srx1.detach()).mean()
-                realx2 = discriminator(hrx2).mean()
-                fakex2 = discriminator(srx2.detach()).mean()
+                #realx1 = discriminator(hrx1).mean()
+                #fakex1 = discriminator(srx1.detach()).mean()
+                #realx2 = discriminator(hrx2).mean()
+                #fakex2 = discriminator(srx2.detach()).mean()
                 
                 loss_d = 1 - real + fake
-                loss_d += 0.250 * (1 - realx2 + fakex2)
-                loss_d += 0.125 * (1 - realx1 + fakex1)
+                #loss_d += 0.250 * (1 - realx2 + fakex2)
+                #loss_d += 0.125 * (1 - realx1 + fakex1)
                 loss_d.backward()
                 
                 optimD.step()
