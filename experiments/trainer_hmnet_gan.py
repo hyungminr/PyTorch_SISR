@@ -172,15 +172,16 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                 
                 sr, srx2, srx1 = model(lr)
                 fake = discriminator(sr).mean()
-                fakex1 = discriminator(srx1).mean()
-                fakex2 = discriminator(srx2).mean()
-                              
+                #fakex1 = discriminator(srx1).mean()
+                #fakex2 = discriminator(srx2).mean()
+                z = torch.zeros_like(fake, device=fake.device)
+                
                 # (1) update G
                   
                 model.zero_grad()
                 loss_g = gloss(fake, sr, hr)
-                loss_g += 0.250 * gloss(fakex2, srx2, hrx2)
-                loss_g += 0.125 * gloss(fakex1, srx1, hrx1)
+                loss_g += 0.250 * gloss(z, srx2, hrx2)
+                loss_g += 0.125 * gloss(z, srx1, hrx1)
                 loss_g.backward()
                                 
                 optimG.step()
