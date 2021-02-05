@@ -186,7 +186,7 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                 D_G_z1 = fake.mean().item()
                 errD_fake.backward()
                 
-                errD = errD_real + errD_fake
+                loss_d = errD_real + errD_fake
                 
                 optimD.step()
                 schedulerD.step()
