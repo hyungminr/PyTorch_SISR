@@ -169,27 +169,14 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                 hrx1 = downx4_bicubic(hr)
                 hrx2 = downx2_bicubic(hr)
                 
-                # (1) update D
                 
                 sr, srx2, srx1 = model(lr)
-                
-                discriminator.zero_grad()
-                real = discriminator(hr).mean()
                 fake = discriminator(sr).mean()
-                realx1 = discriminator(hrx1).mean()
                 fakex1 = discriminator(srx1).mean()
-                realx2 = discriminator(hrx2).mean()
                 fakex2 = discriminator(srx2).mean()
-                loss_d = 1 - real + fake
-                loss_d += 0.250 * (1 - realx2 + fakex2)
-                loss_d += 0.125 * (1 - realx1 + fakex1)
-                loss_d.backward(retain_graph=True)
-                
-                optimD.step()
-                schedulerD.step()
-                
-                
-                # (2) update G
+                              
+                # (1) update G
+                  
                 model.zero_grad()
                 loss_g = gloss(fake, sr, hr)
                 loss_g += 0.250 * gloss(fakex2, srx2, hrx2)
@@ -198,6 +185,26 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                                 
                 optimG.step()
                 schedulerG.step()
+                
+                # (2) update D
+                
+                discriminator.zero_grad()
+                
+                real = discriminator(hr).mean()
+                fake = discriminator(sr.detach()).mean()
+                realx1 = discriminator(hrx1).mean()
+                fakex1 = discriminator(srx1.detach()).mean()
+                realx2 = discriminator(hrx2).mean()
+                fakex2 = discriminator(srx2.detach()).mean()
+                
+                loss_d = 1 - real + fake
+                loss_d += 0.250 * (1 - realx2 + fakex2)
+                loss_d += 0.125 * (1 - realx1 + fakex1)
+                loss_d.backward()
+                
+                optimD.step()
+                schedulerD.step()
+                
                 
                 gmsd = GMSD(hr, sr)
                 
@@ -252,14 +259,14 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                 pfix['PSNR_mean'] = f'{psnr_mean:.2f}'
                 pfix['SSIM_mean'] = f'{ssim_mean:.4f}'
                 # pfix['MSSSIM_mean'] = f'{msssim_mean:.4f}'
-                           
+                
                 free_gpu = get_gpu_memory()[0]
                 
                 pfix['free GPU'] = f'{free_gpu}MiB'
                 pfix['Elapsed'] = f'{elapsed}'
                 
                 pbar.set_postfix(pfix)
-                losses.append(loss.item())
+                losses.append(loss_g.item())
                 
                 if step % save_image_every == 0:
                 
