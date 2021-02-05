@@ -82,12 +82,12 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
     discriminator = discriminator.to(device)
 
     params = list(model.parameters())
-    optimG = torch.optim.Adam(params, lr=1e-4)
+    optimG = torch.optim.Adam(params, lr=1e-3)
     schedulerG = torch.optim.lr_scheduler.StepLR(optimG, step_size=1000, gamma= 0.99)
 
 
     params = list(discriminator.parameters())
-    optimD = torch.optim.Adam(params, lr=1e-4)
+    optimD = torch.optim.Adam(params, lr=1e-3)
     schedulerD = torch.optim.lr_scheduler.StepLR(optimD, step_size=1000, gamma= 0.99)
 
     criterion = torch.nn.L1Loss()
