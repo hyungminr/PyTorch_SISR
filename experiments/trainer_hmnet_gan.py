@@ -96,7 +96,6 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
     blur = Blur().to(device)
     mshf = MSHF(3, 3).to(device)
     gloss = GeneratorLoss().to(device)
-    tvloss = TVLoss().to(device)
     
     downx2_bicubic = nn.Upsample(scale_factor=1/2, mode='bicubic', align_corners=False)
     downx4_bicubic = nn.Upsample(scale_factor=1/4, mode='bicubic', align_corners=False)
@@ -163,48 +162,59 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
             msssims = []
             losses = []
             for lr, hr, _ in pbar:
+            
                 lr = lr.to(device)
                 hr = hr.to(device)
-                          
+                
                 hrx1 = downx4_bicubic(hr)
                 hrx2 = downx2_bicubic(hr)
                 
-                
-                sr, srx2, srx1 = model(lr)
                 fake = discriminator(sr).mean()
-                #fakex1 = discriminator(srx1).mean()
-                #fakex2 = discriminator(srx2).mean()
                 z = torch.zeros_like(fake, device=fake.device)
                 
-                # (1) update G
-                  
+                # (1) update D
+                
+                discriminator.zero_grad()
+                
+                real = discriminator(hr)
+                errD_real = criterion(real, torch.ones_like(real, device=real.device))
+                D_x = real.mean().item()
+                
+                sr, srx2, srx1 = model(lr)
+                fake = discriminator(sr.detach())
+                errD_fake = criterion(fake, torch.zeros_like(real, device=real.device))
+                D_G_z1 = fake.mean().item()
+                errD_fake.backward()
+                
+                errD = errD_real + errD_fake
+                
+                optimD.step()
+                schedulerD.step()
+                
+                
                 model.zero_grad()
                 loss_g = gloss(fake, sr, hr)
                 loss_g += 0.250 * gloss(z, srx2, hrx2)
                 loss_g += 0.125 * gloss(z, srx1, hrx1)
-                loss_g.backward()
+                
+                
+                # (2) update G
+                
+                model.zero_grad()
+                
+                fake = discriminator(sr)
+                D_G_z2 = fake.mean().item()
+                
+                errG = gloss(fake, sr, hr)
+                errGx2 = gloss(None, srx2, hrx2)
+                errGx1 = gloss(None, srx1, hrx1)
+                           
+                loss_g = errG + 0.25*errGx2 + 0.0625*errGx1
                                 
+                loss_g.backward()
+                
                 optimG.step()
                 schedulerG.step()
-                
-                # (2) update D
-                
-                discriminator.zero_grad()
-                
-                real = discriminator(hr).mean()
-                fake = discriminator(sr).mean()
-                #realx1 = discriminator(hrx1).mean()
-                #fakex1 = discriminator(srx1.detach()).mean()
-                #realx2 = discriminator(hrx2).mean()
-                #fakex2 = discriminator(srx2.detach()).mean()
-                
-                loss_d = 1 - real + fake
-                #loss_d += 0.250 * (1 - realx2 + fakex2)
-                #loss_d += 0.125 * (1 - realx1 + fakex1)
-                loss_d.backward()
-                
-                optimD.step()
-                schedulerD.step()
                 
                 
                 gmsd = GMSD(hr, sr)
@@ -239,6 +249,7 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                     lossx2 = criterion(srx2, hrx2)
                     lossx1 = criterion(srx1, hrx1) 
                 """
+                
                 # training history 
                 elapsed_time = time.time() - start_time
                 elapsed = sec2time(elapsed_time)            

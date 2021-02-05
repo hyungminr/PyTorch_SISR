@@ -381,7 +381,7 @@ while num_epochs == 200:
    """
     
     
-from models.hmnet_v5 import hmnet
+from models.hmnet import hmnet
 from models.post_processor import postprocessor
 from models.srgan_discriminator import Discriminator
 from utils.data_loader import get_loader
@@ -397,7 +397,7 @@ today = datetime.datetime.now().strftime('%Y.%m.%d')
 
 train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-trainer.train(model, disc, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v5_GAN', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today)
+trainer.train(model, disc, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_GAN', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today)
 
 while num_epochs == 200:
     batch_size *= 2
@@ -405,5 +405,5 @@ while num_epochs == 200:
     if batch_size == 32: num_epochs = 3000
     train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-    trainer.train(model, disc, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v5_GAN', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, refresh=False, today=today)
+    trainer.train(model, disc, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_GAN', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, refresh=False, today=today)
    
