@@ -192,7 +192,7 @@ def train(model, discriminator, train_loader, test_loader, mode='EDSR_Baseline',
                 discriminator.zero_grad()
                 
                 real = discriminator(hr).mean()
-                fake = discriminator(sr.detach()).mean()
+                fake = discriminator(sr).mean()
                 #realx1 = discriminator(hrx1).mean()
                 #fakex1 = discriminator(srx1.detach()).mean()
                 #realx2 = discriminator(hrx2).mean()
