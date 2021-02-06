@@ -54,7 +54,7 @@ def get_hf_kernel(mode='high', sigma=2):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
+def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2, today=None):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
