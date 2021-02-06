@@ -420,6 +420,7 @@ batch_size = 1
 epoch_start = 0
 num_epochs = 200
 
+model = hmnet(scale=scale_factor)
 today = datetime.datetime.now().strftime('%Y.%m.%d')
 
 train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
