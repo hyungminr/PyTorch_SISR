@@ -10,6 +10,12 @@ from utils.eval import ssim as get_ssim
 from utils.eval import ms_ssim as get_msssim
 from utils.eval import psnr as get_psnr
 
+def img2tensor(iname, device='cuda'):
+    trans = T.Compose([T.ToTensor()])
+    img = Image.open(iname)
+    return trans(img).unsqueeze(0).to(device)
+    
+
 def evaluate(hr: torch.tensor, sr: torch.tensor):
     batch_size, _, h, w = hr.shape
     psnrs, ssims, msssims = [], [], []

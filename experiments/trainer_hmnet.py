@@ -58,8 +58,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    today = datetime.datetime.now().strftime('%Y.%m.%d')
+    if today is None:
+        today = datetime.datetime.now().strftime('%Y.%m.%d')
     
     result_dir = f'./results/{today}/{mode}'
     weight_dir = f'./weights/{today}/{mode}'
