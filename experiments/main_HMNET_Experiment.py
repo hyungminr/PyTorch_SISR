@@ -440,7 +440,7 @@ while num_epochs <= 200:
 
 from models.hmnet_v3 import hmnet
 from utils.data_loader import get_loader
-import trainer_hmnet as trainer
+import trainer_hmnet_denoiser as trainer
 torch.manual_seed(0)
 scale_factor = 4
 
@@ -449,12 +449,11 @@ epoch_start = 0
 num_epochs = 200
 
 model = hmnet(scale=scale_factor)
-model.load_state_dict(torch.load('./weights/hmnet_v3_SRGAN.pth'))
 today = datetime.datetime.now().strftime('%Y.%m.%d')
 
 train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v3_from_gan_batch', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v3_denoiser', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today)
 
 
 while num_epochs <= 200:
@@ -463,4 +462,4 @@ while num_epochs <= 200:
     if batch_size == 32: num_epochs = 3000
     train_loader = get_loader(mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
     test_loader = get_loader(mode='test', height=256, width=256, scale_factor=4)
-    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v3_from_gan_batch', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today, refresh=False)
+    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_v3_denoiser', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today, refresh=False)

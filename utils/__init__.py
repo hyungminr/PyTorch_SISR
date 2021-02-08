@@ -10,6 +10,19 @@ from utils.eval import ssim as get_ssim
 from utils.eval import ms_ssim as get_msssim
 from utils.eval import psnr as get_psnr
 
+
+def get_concat_h(im1, im2):
+    dst = Image.new('RGB', (im1.width + im2.width, im1.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (im1.width, 0))
+    return dst
+
+def get_concat_v(im1, im2):
+    dst = Image.new('RGB', (im1.width, im1.height + im2.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (0, im1.height))
+    return dst
+
 def img2tensor(iname, device='cuda'):
     trans = T.Compose([T.ToTensor()])
     img = Image.open(iname)

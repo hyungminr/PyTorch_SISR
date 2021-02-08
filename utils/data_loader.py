@@ -9,7 +9,7 @@ from utils import evaluate
 
 class dataset(torch.utils.data.Dataset):
     """ Load HR / LR pair """
-    def __init__(self, data='DIV2K', mode='test', height=96, width=96, scale_factor=2, augment=False):
+    def __init__(self, data='DIV2K', mode='test', height=96, width=96, scale_factor=2, augment=False, force_size=False):
         self.data = data
         
         if self.data == 'DIV2K':
@@ -24,6 +24,9 @@ class dataset(torch.utils.data.Dataset):
                 self.root_dir = './data/benchmark/REDS/bin/train/train_sharp/'
         self.height = 256 if mode=='test' else height
         self.width = 256 if mode=='test' else width
+        if force_size:
+            self.height = height
+            self.width = width
         self.augment = augment
         self.files = self.find_files()
         self.scale_factor = 4 if self.data == 'REDS' else scale_factor
@@ -116,10 +119,10 @@ class dataset(torch.utils.data.Dataset):
         return index
     
 
-def get_loader(data='DIV2K', mode='test', batch_size=1, num_workers=1, height=96, width=96, scale_factor=2, augment=False):
+def get_loader(data='DIV2K', mode='test', batch_size=1, num_workers=1, height=96, width=96, scale_factor=2, augment=False,  force_size=False):
         
     shuffle = (mode == 'train')    
-    data_loader = torch.utils.data.DataLoader(dataset=dataset(data, mode, height, width, scale_factor, augment),
+    data_loader = torch.utils.data.DataLoader(dataset=dataset(data, mode, height, width, scale_factor, augment, force_size),
                                               batch_size=batch_size,
                                               shuffle=shuffle,
                                               num_workers=num_workers,
