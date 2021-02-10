@@ -127,7 +127,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
                         hr_input = torch.clamp(hr_input, 0, 1)
                         
-                        sr, srx2, srx1 = model(hr_input)
+                        sr, srx2, srx4 = model(hr_input)
                         
                         sr = quantize(sr)
                         
@@ -162,7 +162,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
                 hr_input = torch.clamp(hr_input, 0, 1)
                 
-                sr, srx2, srx1 = model(hr_input)
+                sr, srx2, srx4 = model(hr_input)
                 
                 
                 gmsd = GMSD(hr, sr)
@@ -240,7 +240,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
                             hr_input = torch.clamp(hr_input, 0, 1)
                             
-                            sr, srx2, srx1 = model(hr_input)
+                            sr, srx2, srx4 = model(hr_input)
                         
                             mshf_hr = mshf(hr)
                             mshf_sr = mshf(sr)
