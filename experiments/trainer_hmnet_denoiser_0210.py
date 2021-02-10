@@ -122,7 +122,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
                         hr = hr.to(device)
                         
-                        sr, srx2, srx1 = model(lr)
+                        sr, srx2, srx1 = model(hr)
                         
                         sr = quantize(sr)
                         
