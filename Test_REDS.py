@@ -20,6 +20,7 @@ batch_size = 1
 
 
 device = 'cpu'
+device = 'cuda'
 
 
 # In[3]:
@@ -27,7 +28,7 @@ device = 'cpu'
 
 model = hmnet(scale=scale_factor).to(device)
 model.load_state_dict(torch.load('./weights/2021.02.07/HMNET_x4_Heavy_REDS_batch_32/epoch_0056.pth'))
-
+model.eval()
 
 # In[4]:
 
@@ -40,26 +41,27 @@ val_loader = get_loader(data='REDS', height=0, width=0, scale_factor=4, mode='te
 
 evals = list()
 pfix = OrderedDict()
-with tqdm(val_loader) as pbar:
-    for lr, hr, f in pbar:
-        lr = lr.to(device)
-        hr = hr.to(device)
-        sr, _, _ = model(lr)
-        psnr, ssim, msssim = evaluate(sr, hr)
-        evals.append([psnr, ssim, msssim])
-        
-        fsplit = f[0].split('/')
-        rname = './results/REDS/val/' + fsplit[-2] + '.' + fsplit[-1].replace('.pt', f'.{psnr:.2f}.png')
-        _ = imshow(sr, filename=rname, visualize=False)
-                
-        pfix['PSNR'] = psnr
-        pfix['SSIM'] = ssim
-        pfix['MS-SSIM'] = msssim
-        
-        npevals = np.array(evals)
-        
-        pfix['avg PSNR'] = npevals[:,0].mean()
-        pfix['avg SSIM'] = npevals[:,0].mean()
-        pfix['avg MS-SSIM'] = npevals[:,0].mean()
-        pbar.set_postfix(pfix)
+with torch.no_grad():
+    with tqdm(val_loader) as pbar:
+        for lr, hr, f in pbar:
+            lr = lr.to(device)
+            hr = hr.to(device)
+            sr, _, _ = model(lr)
+            psnr, ssim, msssim = evaluate(sr, hr)
+            evals.append([psnr, ssim, msssim])
+            
+            fsplit = f[0].split('/')
+            rname = './results/REDS/val/' + fsplit[-2] + '.' + fsplit[-1].replace('.pt', f'.{psnr:.2f}.png')
+            _ = imshow(sr, filename=rname, visualize=False)
+                    
+            pfix['PSNR'] = psnr
+            pfix['SSIM'] = ssim
+            pfix['MS-SSIM'] = msssim
+            
+            npevals = np.array(evals)
+            
+            pfix['avg PSNR'] = npevals[:,0].mean()
+            pfix['avg SSIM'] = npevals[:,0].mean()
+            pfix['avg MS-SSIM'] = npevals[:,0].mean()
+            pbar.set_postfix(pfix)
 
