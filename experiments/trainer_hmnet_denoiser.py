@@ -104,10 +104,12 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     soft_mask = False
     
+    sigmas = [10/255, 30/255, 50/255]
+    
     # hf_kernel = get_hf_kernel(mode='high')
 
     for epoch in range(epoch_start, epoch_start+num_epochs):
-        sigma = 0.0004 * (epoch+1)
+        sigma = 10 / 255
         if epoch == 0:
             torch.save(model.state_dict(), f'{weight_dir}/epoch_{epoch+1:04d}.pth')
             
@@ -119,7 +121,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     msssims = []
                     for lr, hr, fname in pbar_test:
                         lr = lr.to(device)                        
-                        lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
+                        lr_input = lr + torch.randn_like(lr, device=lr.device)*sigma
                         hr = hr.to(device)
                         
                         sr, srx2, srx1 = model(lr)
@@ -155,8 +157,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
                 hr = hr.to(device)
-                
-                lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
+                sigma = np.random.choice(sigmas)
+                lr_input = lr + torch.randn_like(lr, device=lr.device)*sigma
+                lr_input = torch.clamp(lr_input, 0, 1)
                 
                 # prediction
                 _, _, sr = model(lr_input)
@@ -230,7 +233,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             lr = lr.to(device)
                             hr = hr.to(device)
-                            hr_input = hr + torch.rand_like(hr, device=hr.device)*sigma
+                            sigma = np.random.choice(sigmas)
+                            hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
+                            hr_input = torch.clamp(hr_input, 0, 1)
                             _, _, sr = model(hr_input)
                             
                             mshf_hr = mshf(hr)
