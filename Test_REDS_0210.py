@@ -51,7 +51,6 @@ with torch.no_grad():
             evals.append([psnr, ssim, msssim])
             
             fsplit = f[0].split('/')
-            print(fsplit)
             rname = './results/REDS/val/' + fsplit[-2] + '_' + fsplit[-1].replace('.pt', '.png')
             _ = imshow(sr, filename=rname, visualize=False)
                     
