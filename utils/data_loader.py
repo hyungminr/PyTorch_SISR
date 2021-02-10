@@ -74,8 +74,6 @@ class dataset(torch.utils.data.Dataset):
             
         input_tensor = torch.load(input_name)
         output_tensor = torch.load(output_name)
-        print(output_name)
-        print(input_name)
         
         if self.height > 0 and self.width > 0:
             
