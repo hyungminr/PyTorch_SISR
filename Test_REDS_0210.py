@@ -52,7 +52,7 @@ with torch.no_grad():
             
             fsplit = f[0].split('/')
             print(fsplit)
-            rname = './results/REDS/val/' + fsplit[-2] + _ + fsplit[-1].replace('.pt', '.png')
+            rname = './results/REDS/val/' + fsplit[-2] + '_' + fsplit[-1].replace('.pt', '.png')
             _ = imshow(sr, filename=rname, visualize=False)
                     
             pfix['PSNR'] = psnr
