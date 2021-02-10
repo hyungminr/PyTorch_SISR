@@ -27,7 +27,7 @@ device = 'cuda'
 
 
 model = hmnet(scale=scale_factor).to(device)
-model.load_state_dict(torch.load('./weights/2021.02.07/HMNET_x4_Heavy_REDS_batch_32/epoch_0056.pth'))
+model.load_state_dict(torch.load('./weights/2021.02.07/HMNET_x4_Heavy_REDS_batch_32/epoch_0060.pth'))
 model.eval()
 
 # In[4]:
@@ -51,7 +51,7 @@ with torch.no_grad():
             evals.append([psnr, ssim, msssim])
             
             fsplit = f[0].split('/')
-            rname = './results/REDS/val/' + fsplit[-2] + '.' + fsplit[-1].replace('.pt', f'.{psnr:.2f}.png')
+            rname = './results/REDS/val/' + fsplit[-2] + _ + fsplit[-1].replace('.pt', '.png')
             _ = imshow(sr, filename=rname, visualize=False)
                     
             pfix['PSNR'] = psnr
