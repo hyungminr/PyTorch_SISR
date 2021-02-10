@@ -135,9 +135,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         ssim_mean = np.array(ssims).mean()
                         msssim_mean = np.array(msssims).mean()
 
-                        pfix_test['psnr'] = f'{psnr:.4f}'
-                        pfix_test['ssim'] = f'{ssim:.4f}'
-                        pfix_test['msssim'] = f'{msssim:.4f}'
                         pfix_test['psnr_mean'] = f'{psnr_mean:.4f}'
                         pfix_test['ssim_mean'] = f'{ssim_mean:.4f}'
                         pfix_test['msssim_mean'] = f'{msssim_mean:.4f}'
@@ -202,11 +199,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 
                 # training history 
                 elapsed_time = time.time() - start_time
-                elapsed = sec2time(elapsed_time)            
-                pfix['Step'] = f'{step+1}'
+                elapsed = sec2time(elapsed_time)  
                 pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['Loss x2'] = f'{lossx2.item():.4f}'
-                pfix['Loss x1'] = f'{lossx1.item():.4f}'
+                pfix['x2'] = f'{lossx2.item():.4f}'
+                pfix['x1'] = f'{lossx1.item():.4f}'
                 
                 psnrs.append(psnr)
                 ssims.append(ssim)
@@ -216,12 +212,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 ssim_mean = np.array(ssims).mean()
                 msssim_mean = np.array(msssims).mean()
 
-                pfix['PSNR'] = f'{psnr:.2f}'
-                pfix['SSIM'] = f'{ssim:.4f}'
-                # pfix['MSSSIM'] = f'{msssim:.4f}'
                 pfix['PSNR_mean'] = f'{psnr_mean:.2f}'
                 pfix['SSIM_mean'] = f'{ssim_mean:.4f}'
-                # pfix['MSSSIM_mean'] = f'{msssim_mean:.4f}'
                            
                 free_gpu = get_gpu_memory()[0]
                 
@@ -284,9 +276,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             ssim_mean = np.array(ssims).mean()
                             msssim_mean = np.array(msssims).mean()
 
-                            pfix_test['psnr'] = f'{psnr:.4f}'
-                            pfix_test['ssim'] = f'{ssim:.4f}'
-                            pfix_test['msssim'] = f'{msssim:.4f}'
                             pfix_test['psnr_mean'] = f'{psnr_mean:.4f}'
                             pfix_test['ssim_mean'] = f'{ssim_mean:.4f}'
                             pfix_test['msssim_mean'] = f'{msssim_mean:.4f}'
