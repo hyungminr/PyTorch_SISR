@@ -20,3 +20,4 @@ weights
 logger
 logger_old
 data
+*.txt

@@ -525,7 +525,7 @@ while num_epochs <= 200:
 
 from models.hmnet_heavy_x1 import hmnet
 from utils.data_loader import get_loader
-import trainer_hmnet_denoiser_0210 as trainer
+import trainer_hmnet_REDS_jpeg as trainer
 torch.manual_seed(0)
 scale_factor = 4
 
