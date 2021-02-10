@@ -104,6 +104,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
 
     soft_mask = False
     
+    sigmas = [10/255, 30/255, 50/255]
+    
     # hf_kernel = get_hf_kernel(mode='high')
 
     for epoch in range(epoch_start, epoch_start+num_epochs):
@@ -119,10 +121,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     msssims = []
                     for lr, hr, fname in pbar_test:
                         lr = lr.to(device)                        
-                        lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
                         hr = hr.to(device)
                         
-                        sr, srx2, srx1 = model(hr)
+                        sigma = np.random.choice(sigmas)
+                        hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
+                        hr_input = torch.clamp(hr_input, 0, 1)
+                        
+                        sr, srx2, srx1 = model(hr_input)
                         
                         sr = quantize(sr)
                         
@@ -152,12 +157,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
             for lr, hr, _ in pbar:
                 lr = lr.to(device)
                 hr = hr.to(device)
+
+                sigma = np.random.choice(sigmas)
+                hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
+                hr_input = torch.clamp(hr_input, 0, 1)
                 
-                hr_input = hr + torch.rand_like(hr, device=hr.device)*sigma
+                sr, srx2, srx1 = model(hr_input)
                 
-                
-                # prediction
-                sr, srx2, srx4 = model(hr_input)
                 
                 gmsd = GMSD(hr, sr)
                 
@@ -229,9 +235,13 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             # lr = lr.to(device)
                             hr = hr.to(device)
-                            hr_input = hr + torch.rand_like(hr, device=hr.device)*sigma
-                            sr, _, _ = model(hr_input)
                             
+                            sigma = np.random.choice(sigmas)
+                            hr_input = hr + torch.randn_like(hr, device=hr.device)*sigma
+                            hr_input = torch.clamp(hr_input, 0, 1)
+                            
+                            sr, srx2, srx1 = model(hr_input)
+                        
                             mshf_hr = mshf(hr)
                             mshf_sr = mshf(sr)
                             
