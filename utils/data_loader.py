@@ -9,7 +9,7 @@ from utils import evaluate
 
 class dataset(torch.utils.data.Dataset):
     """ Load HR / LR pair """
-    def __init__(self, data='DIV2K', mode='test', height=96, width=96, scale_factor=2, augment=False, force_size=False):
+    def __init__(self, data='REDS_jpeg', mode='test', height=96, width=96, scale_factor=2, augment=False, force_size=False):
         self.data = data
         
         if self.data == 'DIV2K':
@@ -22,6 +22,11 @@ class dataset(torch.utils.data.Dataset):
                 self.root_dir = './data/benchmark/REDS/bin/val/val_sharp/'
             else:
                 self.root_dir = './data/benchmark/REDS/bin/train/train_sharp/'
+        elif self.data == 'REDS_jpeg':
+            if mode == 'test':
+                self.root_dir = './data/benchmark/REDS/bin/val/val_sharp/'
+            else:
+                self.root_dir = './data/benchmark/REDS/bin/train/train_sharp/'
         self.height = 256 if mode=='test' else height
         self.width = 256 if mode=='test' else width
         if force_size:
@@ -29,7 +34,14 @@ class dataset(torch.utils.data.Dataset):
             self.width = width
         self.augment = augment
         self.files = self.find_files()
-        self.scale_factor = 4 if self.data == 'REDS' else scale_factor
+        
+        if self.data == 'REDS':
+            self.scale_factor = 4
+        elif self.data == 'REDS_jpeg':
+            self.scale_factor = 1
+        else:
+            self.scale_factor =  scale_factor
+            
         self.up = torch.nn.Upsample(scale_factor=self.scale_factor, mode='bicubic', align_corners=False)
         
         
@@ -37,7 +49,7 @@ class dataset(torch.utils.data.Dataset):
     def find_files(self):
         if self.data == 'DIV2K':
             return glob.glob(f'{self.root_dir}/*.pt')
-        elif self.data == 'REDS':
+        elif self.data in ['REDS', 'REDS_jpeg']:
             return glob.glob(f'{self.root_dir}/*/*.pt')
     
     def __len__(self):
@@ -51,13 +63,19 @@ class dataset(torch.utils.data.Dataset):
         index = self.indexerror(index)
         
         output_name = self.files[index]
+        
         if self.data == 'DIV2K':
             input_name = output_name.replace('HR', f'LR_bicubic/X{self.scale_factor}')
             input_name = input_name.replace('.pt', f'x{self.scale_factor}.pt')
         elif self.data == 'REDS':
             input_name = output_name.replace('_sharp/', f'_blur_bicubic/X4/')
+        elif self.data == 'REDS_jpeg':
+            input_name = output_name.replace('_sharp/', f'_blur_jpeg/')
+            
         input_tensor = torch.load(input_name)
         output_tensor = torch.load(output_name)
+        print(output_name)
+        print(input_name)
         
         if self.height > 0 and self.width > 0:
             
