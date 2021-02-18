@@ -171,6 +171,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 print(sr_.shape)
                 print(hr.shape)
                 print(lr.shape)
+                print(gmsd.shape)
                 if soft_mask:
                     with torch.no_grad():
                         for _ in range(10): gmsd = opening(gmsd)
@@ -180,7 +181,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     gmask = (gmask - gmask.min()) / (gmask.max() - gmask.min() + 1e-7)
                     gmask = (gmask + 0.25) / 1.25
                     gmask = gmask.detach()
-                    print(gmask.shape)
+                    
                     gmaskx2 = downx2_bicubic(gmask)
                     gmaskx1 = downx4_bicubic(gmask)
                     
