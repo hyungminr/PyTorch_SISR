@@ -180,6 +180,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     gmask = (gmask - gmask.min()) / (gmask.max() - gmask.min() + 1e-7)
                     gmask = (gmask + 0.25) / 1.25
                     gmask = gmask.detach()
+                    print(gmask.shape)
                     gmaskx2 = downx2_bicubic(gmask)
                     gmaskx1 = downx4_bicubic(gmask)
                     
