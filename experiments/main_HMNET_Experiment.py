@@ -585,7 +585,7 @@ num_epochs = 3000
 train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
 test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_batch_{batch_size}', epoch_start=166, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
-"""
+
 
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
@@ -609,4 +609,26 @@ while num_epochs <= 200:
     train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
     test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
     trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_size_{size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=2, today=today, refresh=False)
+"""
+
+
+from models.hmnet_heavy import hmnet
+from utils.data_loader import get_loader
+import trainer_hmnet as trainer
+torch.manual_seed(0)
+scale_factor = 4
+
+batch_size = 1
+epoch_start = 0
+num_epochs = 10
+model = hmnet(scale=scale_factor)
+today = datetime.datetime.now().strftime('%Y.%m.%d')
+today = '2021.02.18'
+model.load_state_dict(torch.load('./weights/2021.02.07/HMNET_x4_Heavy_REDS_batch_32/epoch_0166.pth'))
+
+size = 1024
+num_epochs = 3000
+train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
+test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_size_{size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=2, today=today, refresh=False)
 
