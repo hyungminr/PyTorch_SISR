@@ -168,16 +168,10 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 else:
                     soft_mask = False
                 
-                print(sr_.shape)
-                print(hr.shape)
-                print(lr.shape)
-                print(gmsd.shape)
                 if soft_mask:
-                    with torch.no_grad():
-                        print(gmsd.shape)
-                        for _ in range(10): gmsd = opening(gmsd)
+                    # with torch.no_grad():
+                    #     for _ in range(10): gmsd = opening(gmsd)
                     gmask = gmsd / gmsd.max()
-                    print(gmsd.shape)
                     gmask = (gmask > 0.2) * 1.0
                     gmask = blur(gmask)                
                     gmask = (gmask - gmask.min()) / (gmask.max() - gmask.min() + 1e-7)
