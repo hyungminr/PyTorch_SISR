@@ -626,7 +626,7 @@ today = datetime.datetime.now().strftime('%Y.%m.%d')
 today = '2021.02.18'
 model.load_state_dict(torch.load('./weights/2021.02.07/HMNET_x4_Heavy_REDS_batch_32/epoch_0166.pth'))
 
-size = 1024
+size = 796
 num_epochs = 3000
 train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
 test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
