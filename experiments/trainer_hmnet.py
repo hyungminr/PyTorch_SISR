@@ -217,8 +217,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                            
                 free_gpu = get_gpu_memory()[0]
                 
-                pfix['free GPU'] = f'{free_gpu}MiB'
                 pfix['Elapsed'] = f'{elapsed}'
+                pfix['free GPU'] = f'{free_gpu}MiB'
                 
                 pbar.set_postfix(pfix)
                 losses.append(loss.item())
