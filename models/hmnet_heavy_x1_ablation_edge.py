@@ -220,6 +220,25 @@ class FeatureAtt(nn.Module):
         fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2), z.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
         return torch.sum(fea_map, dim=2)
                 
+                
+class FeatureAtt2(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.att0 = ChannAtt()
+        self.att1 = ChannAtt()
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        layers = [nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 1), padding=0, bias=True)]
+        layers += [nn.Softmax(dim=2)]
+        self.conv = nn.Sequential(*layers)
+        
+    def forward(self, x, y):
+        px = self.pool(self.att0(x))
+        py = self.pool(self.att1(y))
+        pf = torch.cat([px, py, px, py], dim=2)
+        pw = self.conv(pf) * 2
+        fea_map = torch.cat([x.unsqueeze(2), y.unsqueeze(2)], dim=2) * pw.unsqueeze(-1)
+        return torch.sum(fea_map, dim=2)
+                
 class FeatureAtt3(nn.Module):
     def __init__(self):
         super().__init__()
@@ -329,7 +348,7 @@ class hmnet(nn.Module):
         layers += [nn.Conv2d(in_channels=12, out_channels=num_feats, kernel_size=1, padding=0, bias=bias)]
         self.mshf_tail = nn.ModuleList(layers)
         
-        self.feaAtt_x1 = FeatureAtt()
+        self.feaAtt_x1 = FeatureAtt2()
         self.feaAtt_x2 = FeatureAtt3()
         self.feaAtt_x4 = FeatureAtt3()
         
