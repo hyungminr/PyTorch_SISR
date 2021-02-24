@@ -308,3 +308,4 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                         
                         df = pd.DataFrame(hist)
                         df.to_csv(csv)
+    return model
