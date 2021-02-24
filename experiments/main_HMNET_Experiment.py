@@ -708,5 +708,5 @@ while num_epochs <= 200:
     if size > 512: num_epochs = 3000
     train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
     test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
-    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_size_{size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=2, today=today, refresh=False)
+    trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_size_{size}', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
 
