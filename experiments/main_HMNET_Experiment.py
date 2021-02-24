@@ -694,8 +694,8 @@ torch.manual_seed(0)
 scale_factor = 4
 
 batch_size = 1
-epoch_start = 0 - 10
 num_epochs = 100
+epoch_start = 0 - num_epochs
 model = hmnet(scale=scale_factor)
 today = datetime.datetime.now().strftime('%Y.%m.%d')
 today = '2021.02.24'
