@@ -714,7 +714,7 @@ while num_epochs <= 200:
 
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
-import trainer_hmnet as trainer
+import trainer_hmnet_hf_loss as trainer
 torch.manual_seed(0)
 scale_factor = 4
 

@@ -55,12 +55,12 @@ def get_hf_kernel(mode='high', sigma=2):
 
 quantize = lambda x: x.mul(255).clamp(0, 255).round().div(255)
 
-def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2):
+def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_every=50, save_model_every=10, test_model_every=1, epoch_start=0, num_epochs=1000, device=None, refresh=True, scale=2, today=None):
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    today = datetime.datetime.now().strftime('%Y.%m.%d')
+    if today is None: today = datetime.datetime.now().strftime('%Y.%m.%d')
     
     result_dir = f'./results/{today}/{mode}'
     weight_dir = f'./weights/{today}/{mode}'
@@ -208,9 +208,11 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 elapsed_time = time.time() - start_time
                 elapsed = sec2time(elapsed_time)            
                 pfix['Step'] = f'{step+1}'
-                pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['Loss x2'] = f'{lossx2.item():.4f}'
-                pfix['Loss x1'] = f'{lossx1.item():.4f}'
+                pfix['Loss'] = f'{loss_tot.item():.4f}'
+                # pfix['Loss x2'] = f'{lossx2.item():.4f}'
+                # pfix['Loss x1'] = f'{lossx1.item():.4f}'
+                
+                pfix['Elapsed'] = f'{elapsed}'
                 
                 psnrs.append(psnr)
                 ssims.append(ssim)
@@ -226,7 +228,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 free_gpu = get_gpu_memory()[0]
                 
                 pfix['free GPU'] = f'{free_gpu}MiB'
-                pfix['Elapsed'] = f'{elapsed}'
                 
                 pbar.set_postfix(pfix)
                 losses.append(loss.item())
