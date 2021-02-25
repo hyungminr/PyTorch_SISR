@@ -282,7 +282,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                             
                             pbar_test.set_postfix(pfix_test)
                             
-                            
                             z = torch.zeros_like(lr[0])
                             _, _, llr, _ = lr.shape
                             _, _, hlr, _ = hr.shape
