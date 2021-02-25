@@ -47,7 +47,7 @@ scipy==1.5.4
 six==1.15.0
 tensorboard==2.4.0
 tensorboard-plugin-wit==1.7.0
-tifffile==2020.12.8
+#tifffile==2020.12.8
 torch==1.7.1
 torchvision==0.8.2
 tornado==6.1
