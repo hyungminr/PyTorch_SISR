@@ -748,6 +748,6 @@ model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 
 today = datetime.datetime.now().strftime('%Y.%m.%d')
 
-train_loader = get_loader(data='REDS_jpeg', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True)
+train_loader = get_loader(data='REDS_jpeg', mode='train', batch_size=batch_size, height=960, width=540, scale_factor=1, augment=True)
 test_loader = get_loader(data='REDS_jpeg', mode='test', height=256, width=256, scale_factor=1)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_REDS_JPEG', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=10, test_model_every=1, today=today)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_REDS_JPEG', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
