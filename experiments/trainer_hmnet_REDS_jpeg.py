@@ -181,6 +181,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 pfix['Step'] = f'{step+1}'
                 pfix['Loss'] = f'{loss.item():.4f}'
                 
+                pfix['Elapsed'] = f'{elapsed}'
+                
                 psnrs.append(psnr)
                 ssims.append(ssim)
                 msssims.append(msssim)
@@ -195,7 +197,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 free_gpu = get_gpu_memory()[0]
                 
                 pfix['free GPU'] = f'{free_gpu}MiB'
-                pfix['Elapsed'] = f'{elapsed}'
                 
                 pbar.set_postfix(pfix)
                 losses.append(loss.item())
