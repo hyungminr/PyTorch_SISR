@@ -772,7 +772,7 @@ train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, heig
 test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=1)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_SIDD', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
 
-"""
+
 
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
@@ -813,7 +813,7 @@ today = datetime.datetime.now().strftime('%Y.%m.%d')
 
 size = 0
 num_epochs = 3000
-train_loader = get_loader(data='REDS_JPEG', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
-test_loader = get_loader(data='REDS_JPEG', mode='test', height=256, width=256, scale_factor=4)
+train_loader = get_loader(data='REDS_jpeg', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
+test_loader = get_loader(data='REDS_jpeg', mode='test', height=256, width=256, scale_factor=4)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_REDS_JPEG_size_0', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
-"""
+
