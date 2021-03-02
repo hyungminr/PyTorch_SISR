@@ -773,7 +773,7 @@ test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_SIDD', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
 
 
-
+"""
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
 import trainer_hmnet_hf_loss as trainer
@@ -794,7 +794,7 @@ train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, heig
 test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_size_{size}', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
 
-"""
+
 
 from models.hmnet_heavy_ablation_fea import hmnet
 from utils.data_loader import get_loader
