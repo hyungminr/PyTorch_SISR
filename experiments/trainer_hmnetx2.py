@@ -200,8 +200,9 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                 # training history 
                 elapsed_time = time.time() - start_time
                 elapsed = sec2time(elapsed_time)  
+                pfix['Elapsed'] = f'{elapsed}'
                 pfix['Loss'] = f'{loss.item():.4f}'
-                pfix['x2'] = f'{lossx2.item():.4f}'
+                pfix['x4'] = f'{lossx4.item():.4f}'
                 pfix['x1'] = f'{lossx1.item():.4f}'
                 
                 psnrs.append(psnr)
@@ -217,7 +218,6 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                            
                 free_gpu = get_gpu_memory()[0]
                 
-                pfix['Elapsed'] = f'{elapsed}'
                 pfix['free GPU'] = f'{free_gpu}MiB'
                 
                 pbar.set_postfix(pfix)
