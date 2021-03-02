@@ -795,7 +795,8 @@ test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_REDS_size_{size}', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
 """
 
-from models.hmnet_heavy_x1 import hmnet
+# from models.hmnet_heavy_x1 import hmnet
+from models.hmnet_heavy_x1_ablation_fea import hmnet
 from utils.data_loader import get_loader
 import trainer_hmnet_REDS_jpeg as trainer
 torch.manual_seed(0)
