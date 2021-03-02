@@ -820,7 +820,7 @@ trainer.train(model, train_loader, test_loader, mode=f'HMNET_REDS_JPEG_size_0', 
 
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
-import trainer_hmnet_hf_loss as trainer
+import trainer_hmnetx2 as trainer
 torch.manual_seed(0)
 scale_factor = 2
 
