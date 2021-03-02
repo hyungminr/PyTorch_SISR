@@ -27,6 +27,11 @@ class dataset(torch.utils.data.Dataset):
                 self.root_dir = './data/benchmark/REDS/bin/val/val_sharp/'
             else:
                 self.root_dir = './data/benchmark/REDS/bin/train/train_sharp/'
+        elif self.data == 'SIDD':
+            if mode == 'test':
+                self.root_dir = './data/benchmark/SIDD/bin/GT/val/'
+            else:
+                self.root_dir = './data/benchmark/SIDD/bin/GT/train/'
         self.height = 256 if mode=='test' else height
         self.width = 256 if mode=='test' else width
         if force_size:
@@ -51,6 +56,8 @@ class dataset(torch.utils.data.Dataset):
             return glob.glob(f'{self.root_dir}/*.pt')
         elif self.data in ['REDS', 'REDS_jpeg']:
             return glob.glob(f'{self.root_dir}/*/*.pt')
+        elif self.data in ['SIDD']:
+            return glob.glob(f'{self.root_dir}/*.npy')
     
     def __len__(self):
         return len(self.files)
@@ -71,9 +78,17 @@ class dataset(torch.utils.data.Dataset):
             input_name = output_name.replace('_sharp/', f'_blur_bicubic/X4/')
         elif self.data == 'REDS_jpeg':
             input_name = output_name.replace('_sharp/', f'_blur_jpeg/')
+        elif self.data == 'SIDD':
+            input_name = output_name.replace('/GT/', '/NOISY/')
             
-        input_tensor = torch.load(input_name)
-        output_tensor = torch.load(output_name)
+        if self.data == 'SIDD':
+            input_tensor = np.load(input_name)
+            output_tensor = np.load(output_name)
+            input_tensor = torch.from_numpy(input_tensor).squeeze(0)
+            output_tensor = torch.from_numpy(output_tensor).squeeze(0)
+        else:
+            input_tensor = torch.load(input_name)
+            output_tensor = torch.load(output_name)
         
         if self.height > 0 and self.width > 0:
             
