@@ -794,7 +794,7 @@ train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, heig
 test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Heavy_no_fea_REDS_size_{size}', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
 
-"""
+
 
 from models.hmnet_heavy_x1_ablation_fea import hmnet
 from utils.data_loader import get_loader
@@ -817,7 +817,7 @@ train_loader = get_loader(data='REDS_jpeg', mode='train', batch_size=batch_size,
 test_loader = get_loader(data='REDS_jpeg', mode='test', height=256, width=256, scale_factor=4)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_no_fea_REDS_JPEG_size_0', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
 
-"""
+
 from models.hmnet_heavy import hmnet
 from utils.data_loader import get_loader
 import trainer_hmnetx2 as trainer
@@ -838,3 +838,55 @@ train_loader = get_loader(mode='train', batch_size=4, height=192, width=192, sca
 test_loader = get_loader(mode='test', height=256, width=256, scale_factor=scale_factor)
 trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_192', epoch_start=0, num_epochs=num_epochs, save_model_every=10, test_model_every=1, today=today, refresh=False)
 """
+
+today='2021.03.09'
+from models.hmnet_heavy_x1_ablation_edge import hmnet
+from utils.data_loader import get_loader
+import trainer_hmnet_denoiser_0210 as trainer
+torch.manual_seed(0)
+scale_factor = 4
+
+batch_size = 1
+epoch_start = 0
+num_epochs = 200
+
+model = hmnet(scale=scale_factor)
+#today = datetime.datetime.now().strftime('%Y.%m.%d')
+        
+train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=1, augment=True)
+test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=1)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_SIDD_heavy_x1_denoise_ablation_edge', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today)
+
+while num_epochs <= 200:
+    batch_size *= 2
+    epoch_start += 200
+    if batch_size == 16: num_epochs = 3000
+    train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+    test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=4)
+    trainer.train(model, train_loader, test_loader, mode=f'HMNET_SIDD_heavy_x1_denoise_ablation_edge', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today, refresh=False)
+
+
+from models.hmnet_heavy_x1_ablation_fea import hmnet
+from utils.data_loader import get_loader
+import trainer_hmnet_denoiser_0210 as trainer
+torch.manual_seed(0)
+scale_factor = 4
+
+batch_size = 1
+epoch_start = 0
+num_epochs = 200
+
+model = hmnet(scale=scale_factor)
+#today = datetime.datetime.now().strftime('%Y.%m.%d')
+        
+train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=4)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_SIDD_heavy_x1_denoise_ablation_fea', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today)
+
+while num_epochs <= 200:
+    batch_size *= 2
+    epoch_start += 200
+    if batch_size == 16: num_epochs = 3000
+    train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=4, augment=True)
+    test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=4)
+    trainer.train(model, train_loader, test_loader, mode=f'HMNET_SIDD_heavy_x1_denoise_ablation_fea', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=100, test_model_every=1, today=today, refresh=False)

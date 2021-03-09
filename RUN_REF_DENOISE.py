@@ -56,10 +56,10 @@ today = '2021.03.05'
 #trainer.train(model, train_loader, test_loader, mode=f'ref_denoise_sidd_MemNet', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=20, test_model_every=1, today=today)
 
 
-model = DHDN()
-train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=1, augment=True)
-test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=1)
-trainer.train(model, train_loader, test_loader, mode=f'ref_denoise_sidd_DHDN', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=20, test_model_every=1, today=today)
+#model = DHDN()
+#train_loader = get_loader(data='SIDD', mode='train', batch_size=batch_size, height=192, width=192, scale_factor=1, augment=True)
+#test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=1)
+#trainer.train(model, train_loader, test_loader, mode=f'ref_denoise_sidd_DHDN', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=20, test_model_every=1, today=today)
 
 
 model = FFDNet()
