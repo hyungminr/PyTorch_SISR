@@ -95,7 +95,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     downx4_bicubic = nn.Upsample(scale_factor=1/4, mode='bicubic', align_corners=False)
         
     padl = nn.ReflectionPad2d(10)
-    padh = nn.ReflectionPad2d(20)
+    padh = nn.ReflectionPad2d(40)
     
     start_time = time.time()
     print(f'Training Start || Mode: {mode}')
