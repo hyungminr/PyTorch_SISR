@@ -32,6 +32,11 @@ class dataset(torch.utils.data.Dataset):
                 self.root_dir = './data/benchmark/SIDD/bin/GT/val/'
             else:
                 self.root_dir = './data/benchmark/SIDD/bin/GT/train/'
+        elif self.data == 'Flickr2K':
+            if mode == 'test':
+                self.root_dir = './data/benchmark/Flickr2K/bin/val/sharp/'
+            else:
+                self.root_dir = './data/benchmark/Flickr2K/bin/train/sharp/'
         self.height = 256 if mode=='test' else height
         self.width = 256 if mode=='test' else width
         if force_size:
@@ -80,6 +85,8 @@ class dataset(torch.utils.data.Dataset):
             input_name = output_name.replace('_sharp/', f'_blur_jpeg/')
         elif self.data == 'SIDD':
             input_name = output_name.replace('/GT/', '/NOISY/')
+        elif self.data == 'Flickr2K':
+            input_name = output_name.replace('/sharp/', '/blur/')
             
         if self.data == 'SIDD':
             input_tensor = np.load(input_name)
