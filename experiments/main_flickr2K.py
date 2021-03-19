@@ -20,7 +20,7 @@ epoch_start = 0
 num_epochs = 200
 
 model = hmnet(scale=scale_factor)
-model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
+#model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 
 train_loader = get_loader(data='Flickr2K', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
 test_loader = get_loader(data='Flickr2K', mode='test', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
@@ -37,7 +37,7 @@ epoch_start = 0
 num_epochs = 200
 
 model = hmnet(scale=scale_factor)
-model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
+#model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 
 
 train_loader = get_loader(data='Flickr2K', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
@@ -55,7 +55,7 @@ epoch_start = 0
 num_epochs = 200
 
 model = hmnet(scale=scale_factor)
-model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
+#model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 
 train_loader = get_loader(data='Flickr2K', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
 test_loader = get_loader(data='Flickr2K', mode='test', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)

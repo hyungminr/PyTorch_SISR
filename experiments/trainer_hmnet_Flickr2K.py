@@ -77,7 +77,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     os.makedirs(logger_dir, exist_ok=True)
     logger = SummaryWriter(log_dir=logger_dir, flush_secs=2)
     model = model.to(device)
-    model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
+    #model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
     
     params = list(model.parameters())
     optim = torch.optim.Adam(params, lr=1e-4)
