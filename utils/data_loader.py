@@ -63,6 +63,8 @@ class dataset(torch.utils.data.Dataset):
             return glob.glob(f'{self.root_dir}/*/*.pt')
         elif self.data in ['SIDD']:
             return glob.glob(f'{self.root_dir}/*.npy')
+        elif self.data in ['Flickr2K']:
+            return glob.glob(f'{self.root_dir}/*.npy')
     
     def __len__(self):
         return len(self.files)

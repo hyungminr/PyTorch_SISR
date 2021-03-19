@@ -25,7 +25,7 @@ model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 train_loader = get_loader(data='Flickr2K', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
 test_loader = get_loader(data='Flickr2K', mode='test', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
 test_loader = get_loader(data='SIDD', mode='test', height=256, width=256, scale_factor=1)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Flickr2K', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_Flickr2K', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
     
 from models.hmnet_heavy_x1_ab_fea_0310 import hmnet
 from utils.data_loader import get_loader
@@ -43,7 +43,7 @@ model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 
 train_loader = get_loader(data='Flickr2K', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
 test_loader = get_loader(data='Flickr2K', mode='test', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Flickr2K_ablation_fea', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_Flickr2K_ablation_fea', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
     
 from models.hmnet_heavy_x_ab_edge_0310 import hmnet
 from utils.data_loader import get_loader
@@ -60,5 +60,5 @@ model.load_state_dict(torch.load('./weights/HMNET_x4_Heavy_REDS_JPEG.pth'))
 
 train_loader = get_loader(data='Flickr2K', mode='train', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
 test_loader = get_loader(data='Flickr2K', mode='test', batch_size=batch_size, height=0, width=0, scale_factor=1, augment=True, force_size=True)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_x{scale_factor}_Flickr2K_ablation_edge', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_Flickr2K_ablation_edge', epoch_start=epoch_start, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today)
     
