@@ -119,8 +119,7 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
                     ssims = []
                     msssims = []
                     for lr, hr, fname in pbar_test:
-                        lr = lr.to(device)                        
-                        lr_input = lr + torch.rand_like(lr, device=lr.device)*sigma
+                        lr = lr.to(device)
                         hr = hr.to(device)
                         
                         sr, srx2, srx1 = model(hr)
