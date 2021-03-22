@@ -1070,8 +1070,8 @@ today = datetime.datetime.now().strftime('%Y.%m.%d')
 
 size = 0
 num_epochs = 3000
-train_loader = get_loader(data='REDS_jpeg_ab_edge', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=1, augment=True)
-test_loader = get_loader(data='REDS_jpeg_ab_edge', mode='test', height=256, width=256, scale_factor=1)
-trainer.train(model, train_loader, test_loader, mode=f'HMNET_REDS_JPEG_last', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
+train_loader = get_loader(data='REDS_jpeg', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=1, augment=True)
+test_loader = get_loader(data='REDS_jpeg', mode='test', height=256, width=256, scale_factor=1)
+trainer.train(model, train_loader, test_loader, mode=f'HMNET_REDS_JPEG_ab_edge', epoch_start=0, num_epochs=num_epochs, save_model_every=1, test_model_every=1, today=today, refresh=False)
 
 
