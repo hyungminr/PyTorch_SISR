@@ -8,7 +8,7 @@ import datetime
 
 from models.hmnet_heavy_ablation_fea import hmnet
 from utils.data_loader import get_loader
-import trainer_hmnet_hf_loss_last as trainer
+import trainer_0426 as trainer
 torch.manual_seed(0)
 scale_factor = 4
 
