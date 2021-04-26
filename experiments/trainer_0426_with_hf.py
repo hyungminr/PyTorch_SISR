@@ -89,8 +89,8 @@ def train(model, train_loader, test_loader, mode='EDSR_Baseline', save_image_eve
     blur = Blur().to(device)
     mshf = MSHF(3, 3).to(device)
     
-    #high_pass = high_pass_filter(scale=4).to(device).eval()
-    #high_pass.load_state_dict(torch.load('./weights/2021.02.01/HMNET_x4_High_Pass_Filter_lite/epoch_0100.pth'))
+    high_pass = high_pass_filter(scale=4).to(device).eval()
+    high_pass.load_state_dict(torch.load('./weights/2021.02.01/HMNET_x4_High_Pass_Filter_lite/epoch_0100.pth'))
     downx2_bicubic = nn.Upsample(scale_factor=1/2, mode='bicubic', align_corners=False)
     downx4_bicubic = nn.Upsample(scale_factor=1/4, mode='bicubic', align_corners=False)
         
