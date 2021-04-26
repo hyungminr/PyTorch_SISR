@@ -18,7 +18,7 @@ num_epochs = 10
 model = hmnet(scale=scale_factor)
 today = datetime.datetime.now().strftime('%Y.%m.%d')
 
-size = 0
+size = 256
 num_epochs = 10
 train_loader = get_loader(data='REDS', mode='train', batch_size=batch_size, height=size, width=size, scale_factor=4, augment=True)
 test_loader = get_loader(data='REDS', mode='test', height=256, width=256, scale_factor=4)
